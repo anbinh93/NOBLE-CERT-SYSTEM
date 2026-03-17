@@ -1,0 +1,238 @@
+{
+  "_comment": "Mock Course – dùng để seed MongoDB. Unit type: video/document/exam (lowercase). Duration tính theo giây.",
+  "_id": "mock-course-react-001",
+  "title": "Lập trình React & Next.js Thực Chiến – Từ Zero đến Production",
+  "description": "Khóa học toàn diện dành cho lập trình viên muốn chinh phục React và Next.js ở cấp độ chuyên nghiệp. Bạn sẽ xây dựng ứng dụng thực tế, hiểu sâu về Virtual DOM, Server Components, tối ưu hiệu suất và triển khai lên Vercel. Không cần kinh nghiệm React trước đó, chỉ cần biết HTML/CSS/JS cơ bản.",
+  "price": 1490000,
+  "status": "PUBLISHED",
+  "instructorId": "mock-instructor-001",
+  "settings": {
+    "slug": "lap-trinh-react-nextjs-thuc-chien",
+    "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+    "category": "Lập trình Web",
+    "passing_score": 80,
+    "is_sequential": true,
+    "certificate_enabled": true,
+    "total_duration_hours": 14
+  },
+  "units": [
+    {
+      "unitId": "u-01",
+      "sectionIndex": 0,
+      "sectionTitle": "Phần 1: Nhập môn & Thiết lập môi trường",
+      "order": 1,
+      "title": "Giới thiệu khóa học – Bạn sẽ học được gì?",
+      "type": "video",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "duration": 212,
+      "isFree": true,
+      "description": "Tổng quan lộ trình học, mục tiêu từng phần và cách học hiệu quả nhất."
+    },
+    {
+      "unitId": "u-02",
+      "sectionIndex": 0,
+      "sectionTitle": "Phần 1: Nhập môn & Thiết lập môi trường",
+      "order": 2,
+      "title": "Cài đặt Node.js, VS Code và React DevTools",
+      "type": "video",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "duration": 212,
+      "isFree": true,
+      "description": "Thiết lập đầy đủ môi trường phát triển trên Windows/macOS/Linux."
+    },
+    {
+      "unitId": "u-03",
+      "sectionIndex": 0,
+      "sectionTitle": "Phần 1: Nhập môn & Thiết lập môi trường",
+      "order": 3,
+      "title": "JSX là gì? Cú pháp, biểu thức và quy tắc cơ bản",
+      "type": "video",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "duration": 212,
+      "isFree": false,
+      "description": "Khám phá cú pháp JSX, cách biến tướng sang JS thực và các lỗi thường gặp."
+    },
+    {
+      "unitId": "u-04",
+      "sectionIndex": 1,
+      "sectionTitle": "Phần 2: Components, Props & Composition",
+      "order": 4,
+      "title": "Function Components & Props – Truyền dữ liệu đúng cách",
+      "type": "video",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "duration": 212,
+      "isFree": false,
+      "description": "Tạo và tái sử dụng Components. Truyền Props, destructuring và default values."
+    },
+    {
+      "unitId": "u-05",
+      "sectionIndex": 1,
+      "sectionTitle": "Phần 2: Components, Props & Composition",
+      "order": 5,
+      "title": "Component Composition – children, slots và Render Props",
+      "type": "video",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "duration": 212,
+      "isFree": false,
+      "description": "Nắm vững pattern Composition để xây dựng UI linh hoạt và tái sử dụng tốt."
+    },
+    {
+      "unitId": "u-06",
+      "sectionIndex": 1,
+      "sectionTitle": "Phần 2: Components, Props & Composition",
+      "order": 6,
+      "title": "TypeScript với React – Interface Props, Generic Components",
+      "type": "video",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "duration": 212,
+      "isFree": false,
+      "description": "Tích hợp TypeScript vào React project – type-safe Props, Events và Refs."
+    },
+    {
+      "unitId": "u-07",
+      "sectionIndex": 2,
+      "sectionTitle": "Phần 3: React Hooks & State Management",
+      "order": 7,
+      "title": "useState & useEffect – Vòng đời Component và Side Effects",
+      "type": "video",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "duration": 212,
+      "isFree": false,
+      "description": "Hiểu sâu useState, dependency array và cleanup trong useEffect."
+    },
+    {
+      "unitId": "u-08",
+      "sectionIndex": 2,
+      "sectionTitle": "Phần 3: React Hooks & State Management",
+      "order": 8,
+      "title": "useContext, useReducer & Custom Hooks",
+      "type": "video",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "duration": 212,
+      "isFree": false,
+      "description": "Quản lý state toàn cục với Context API và tối ưu logic với Custom Hooks."
+    },
+    {
+      "unitId": "u-09",
+      "sectionIndex": 2,
+      "sectionTitle": "Phần 3: React Hooks & State Management",
+      "order": 9,
+      "title": "useMemo, useCallback & React.memo – Tối ưu hiệu suất",
+      "type": "video",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "duration": 212,
+      "isFree": false,
+      "description": "Phòng tránh re-render không cần thiết và memoize các giá trị tính toán nặng."
+    },
+    {
+      "unitId": "u-10",
+      "sectionIndex": 3,
+      "sectionTitle": "Phần 4: Next.js App Router & Dự án thực chiến",
+      "order": 10,
+      "title": "Next.js 15 App Router – File Conventions & Routing",
+      "type": "video",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "duration": 212,
+      "isFree": false,
+      "description": "Cấu trúc thư mục App Router, layouts, pages và loading/error boundaries."
+    },
+    {
+      "unitId": "u-11",
+      "sectionIndex": 3,
+      "sectionTitle": "Phần 4: Next.js App Router & Dự án thực chiến",
+      "order": 11,
+      "title": "Server Components vs Client Components – Data Fetching Patterns",
+      "type": "video",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "duration": 212,
+      "isFree": false,
+      "description": "RSC, Streaming, Suspense và các pattern fetch data hiệu suất cao trong Next.js."
+    },
+    {
+      "unitId": "u-12",
+      "sectionIndex": 3,
+      "sectionTitle": "Phần 4: Next.js App Router & Dự án thực chiến",
+      "order": 12,
+      "title": "Tài liệu tham khảo – Cheat Sheet React & Next.js",
+      "type": "document",
+      "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "estimatedTime": 900,
+      "isFree": false,
+      "description": "Tổng hợp đầy đủ các hooks, patterns và best practices làm tài liệu tra cứu."
+    },
+    {
+      "unitId": "u-13",
+      "sectionIndex": 3,
+      "sectionTitle": "Phần 4: Next.js App Router & Dự án thực chiến",
+      "order": 13,
+      "title": "Bài kiểm tra cuối khóa – Cấp chứng chỉ",
+      "type": "exam",
+      "isFree": false,
+      "description": "Đạt tối thiểu 80/100 điểm để nhận chứng chỉ hoàn thành khóa học.",
+      "questions": [
+        {
+          "id": "q1",
+          "text": "Virtual DOM trong React hoạt động dựa trên cơ chế nào?",
+          "options": ["Cập nhật trực tiếp DOM thật", "So sánh (diffing) với DOM ảo trước đó rồi cập nhật tối thiểu", "Re-render toàn bộ trang mỗi khi state thay đổi", "Sử dụng Web Workers"],
+          "correctAnswer": 1
+        },
+        {
+          "id": "q2",
+          "text": "Dependency array rỗng [] trong useEffect có nghĩa là gì?",
+          "options": ["Effect chạy mỗi khi render", "Effect không bao giờ chạy", "Effect chỉ chạy một lần sau khi mount", "Effect chỉ chạy khi unmount"],
+          "correctAnswer": 2
+        },
+        {
+          "id": "q3",
+          "text": "Hook nào dùng để memoize một hàm callback?",
+          "options": ["useMemo", "useCallback", "useRef", "useReducer"],
+          "correctAnswer": 1
+        },
+        {
+          "id": "q4",
+          "text": "Trong Next.js App Router, file nào dùng để tạo layout bao quanh tất cả các trang con?",
+          "options": ["_app.tsx", "_layout.tsx", "layout.tsx", "template.tsx"],
+          "correctAnswer": 2
+        },
+        {
+          "id": "q5",
+          "text": "Server Components trong Next.js App Router có thể làm gì mà Client Components không thể?",
+          "options": ["Sử dụng useState", "Truy cập database trực tiếp", "Xử lý onClick events", "Dùng useEffect"],
+          "correctAnswer": 1
+        },
+        {
+          "id": "q6",
+          "text": "Context API trong React giải quyết vấn đề gì?",
+          "options": ["Caching dữ liệu từ server", "Prop drilling qua nhiều cấp component", "Tối ưu re-render", "Routing giữa các trang"],
+          "correctAnswer": 1
+        },
+        {
+          "id": "q7",
+          "text": "React.memo() bọc một component để làm gì?",
+          "options": ["Lưu cache state của component", "Ngăn re-render khi props không thay đổi", "Lazy-load component", "Tạo context mới"],
+          "correctAnswer": 1
+        },
+        {
+          "id": "q8",
+          "text": "Trong JSX, để render một list cần dùng prop nào bắt buộc?",
+          "options": ["id", "index", "key", "ref"],
+          "correctAnswer": 2
+        },
+        {
+          "id": "q9",
+          "text": "useReducer phù hợp nhất trong trường hợp nào?",
+          "options": ["State đơn giản chỉ là boolean", "State phức tạp với nhiều actions liên quan nhau", "Chỉ đọc state, không cập nhật", "Fetch dữ liệu từ API"],
+          "correctAnswer": 1
+        },
+        {
+          "id": "q10",
+          "text": "Cú pháp JSX `{condition && <Component />}` xảy ra điều gì khi condition = 0?",
+          "options": ["Không render gì", "Render 0 ra màn hình", "Render <Component />", "Throw error"],
+          "correctAnswer": 1
+        }
+      ]
+    }
+  ],
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z"
+}

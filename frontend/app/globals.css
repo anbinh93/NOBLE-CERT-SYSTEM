@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Noble Light Theme: Noble Mist & Deep Green (No Absolute White) */
+  --background: 164 40% 95%;   /* Noble Mist (Visible Green Tint) */
+  --foreground: 164 60% 8%;    /* Deep Forest Green (Sharpened) */
+
+  --card: 164 30% 99%;         /* Off-White with Green Tint */
+  --card-foreground: 164 60% 8%;
+
+  --popover: 164 30% 99%;
+  --popover-foreground: 164 60% 8%;
+
+  --primary: 45 90% 32%;       /* Deep Royal Gold (Stronger contrast) */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 164 30% 92%;    /* Soft Green Secondary */
+  --secondary-foreground: 164 60% 8%;
+
+  --muted: 164 20% 90%;        /* Muted Green-Gray */
+  --muted-foreground: 164 40% 35%;
+
+  --accent: 45 60% 90%;        /* Light Gold Accent */
+  --accent-foreground: 45 90% 32%;
+
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 164 30% 85%;       /* Defined Green Border */
+  --input: 164 30% 85%;
+  --ring: 45 90% 35%;          /* Gold Ring */
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  /* Noble Dark Theme: Deep Forest Green & Gold */
+  --background: 164 81% 6%;    /* #031d16 Deep Forest Green */
+  --foreground: 45 30% 90%;    /* #f2e8cf Champaign Gold (Text) */
+  
+  --card: 163 77% 8%;          /* #05261d Darker Green Card */
+  --card-foreground: 45 30% 90%;
+  
+  --popover: 163 77% 8%;
+  --popover-foreground: 45 30% 90%;
+  
+  --primary: 46 65% 52%;       /* #d4af37 Noble Gold */
+  --primary-foreground: 164 81% 6%;
+  
+  --secondary: 160 40% 15%;    /* Muted Green */
+  --secondary-foreground: 45 30% 90%;
+  
+  --muted: 160 40% 15%;
+  --muted-foreground: 160 20% 65%;
+  
+  --accent: 46 65% 52%;
+  --accent-foreground: 164 81% 6%;
+  
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 45 30% 90%;
+  
+  --border: 46 30% 20%;        /* Dim Gold Border */
+  --input: 160 40% 15%;
+  --ring: 46 65% 52%;
+}
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+/* Base Styles */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .animate-spin-cw {
+    animation: spin-cw 20s linear infinite;
+  }
+  .animate-spin-ccw {
+    animation: spin-ccw 20s linear infinite;
+  }
+}
+
+@keyframes spin-cw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-ccw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}

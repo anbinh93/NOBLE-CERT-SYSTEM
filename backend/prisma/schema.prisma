@@ -1,0 +1,121 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+enum Role {
+  SUPER_ADMIN
+  INSTRUCTOR
+  STUDENT
+  STAFF
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  CANCELLED
+  MISMATCH
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(STUDENT)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders      Order[]
+  courses     Course[] // Nếu là Instructor
+  enrollments Enrollment[]
+}
+
+model Course {
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String?
+  price         Float        @default(0)
+  status        CourseStatus @default(DRAFT)
+  instructorId  String       @db.ObjectId
+  instructor    User         @relation(fields: [instructorId], references: [id])
+  settings      Json?        // Lưu cấu hình passing_score, is_sequential, thumbnail, category
+  units         Json[]       // Cấu trúc Syllabus
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  orders        Order[]
+  enrollments   Enrollment[]
+}
+
+model Order {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String      @db.ObjectId
+  courseId     String      @db.ObjectId
+  orderCode   Int         @unique
+  amount      Float
+  status      OrderStatus @default(PENDING)
+  memo        String      @unique
+  paymentLink String?
+  expiredAt   DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id])
+  course      Course      @relation(fields: [courseId], references: [id])
+}
+
+model Enrollment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  courseId  String   @db.ObjectId
+  status    String   @default("ACTIVE") // ACTIVE, COMPLETED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+  progresses Progress[]
+  attempts   ExamAttempt[]
+}
+
+model Progress {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  enrollmentId        String   @db.ObjectId
+  unitId              String   // ID của Unit lấy từ trường units Json[] của Course
+  isCompleted         Boolean  @default(false)
+  lastWatchedPosition Float    @default(0)
+  timeSpent           Float    @default(0) // Tổng thời gian đã học (giây)
+  updatedAt           DateTime @updatedAt
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id])
+  
+  @@unique([enrollmentId, unitId])
+}
+
+model ExamAttempt {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  enrollmentId String   @db.ObjectId
+  courseId     String   @db.ObjectId
+  score        Float
+  isPassed     Boolean
+  answers      Json     // Lưu lại bài làm của user
+  createdAt    DateTime @default(now())
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id])
+}

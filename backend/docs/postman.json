@@ -1,0 +1,876 @@
+{
+	"info": {
+		"_postman_id": "noble-cert-api-v2",
+		"name": "Noble Cert API v2",
+		"description": "Bộ sưu tập API đầy đủ cho nền tảng Noble Cert. Tất cả endpoint được đồng bộ với source code thực tế.\n\n**Base URL**: `http://localhost:5000`\n\n**Xác thực:**\n- Public endpoints: không cần token\n- Email-based endpoints: dùng `?email=...` query param (từ NextAuth session)\n- JWT-protected endpoints: dùng `Authorization: Bearer {{access_token}}`\n\n**Response envelope (hầu hết endpoints):**\n```json\n{ \"status\": \"success\", \"message\": \"...\", \"data\": { ... } }\n```\n**Ngoại lệ:** `GET /api/public/courses` và `GET /api/public/courses/:slug` trả về dữ liệu trực tiếp (không wrap).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string",
+			"description": "JWT Access Token — tự động set sau khi login"
+		},
+		{
+			"key": "course_id",
+			"value": "69ab043585e4f145461ec08d",
+			"type": "string",
+			"description": "MongoDB ObjectId của khoá học"
+		},
+		{
+			"key": "unit_id",
+			"value": "design-unit-1",
+			"type": "string",
+			"description": "unitId trong mảng course.units"
+		}
+	],
+	"item": [
+		{
+			"name": "🔐 Auth",
+			"description": "Đăng ký, đăng nhập, refresh token. Mounted tại `/api/v1/auth`.",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Nguyễn Văn A\",\n  \"email\": \"student@noble.vn\",\n  \"password\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "register"]
+						},
+						"description": "Đăng ký tài khoản mới. Trả về user info."
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Đăng ký tài khoản thành công!\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"69ab18dfb697590d43fbbbda\",\n      \"name\": \"Nguyễn Văn A\",\n      \"email\": \"student@noble.vn\",\n      \"role\": \"STUDENT\"\n    }\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"  const json = pm.response.json();",
+									"  const token = json?.data?.accessToken;",
+									"  if (token) {",
+									"    pm.environment.set('access_token', token);",
+									"    pm.collectionVariables.set('access_token', token);",
+									"    console.log('✅ access_token saved');",
+									"  }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student@noble.vn\",\n  \"password\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "login"]
+						},
+						"description": "Đăng nhập. `accessToken` được tự động lưu vào collection variable `access_token`. `refreshToken` được set vào HttpOnly cookie `jwt_refresh`."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Đăng nhập thành công!\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"69ab18dfb697590d43fbbbda\",\n      \"name\": \"Nguyễn Văn A\",\n      \"email\": \"student@noble.vn\",\n      \"role\": \"STUDENT\"\n    },\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  }\n}"
+						},
+						{
+							"name": "401 Invalid Credentials",
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"fail\",\n  \"message\": \"Email hoặc mật khẩu không đúng\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/refresh",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "refresh"]
+						},
+						"description": "Lấy `accessToken` mới từ `refreshToken` trong HttpOnly cookie `jwt_refresh`."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Refresh token thành công!\",\n  \"data\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  }\n}"
+						},
+						{
+							"name": "401 No Refresh Token",
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"fail\",\n  \"message\": \"Bạn chưa đăng nhập. Vui lòng đăng nhập lại!\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Google Sync",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student@gmail.com\",\n  \"name\": \"Nguyễn Văn A\",\n  \"image\": \"https://lh3.googleusercontent.com/...\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/google-sync",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "google-sync"]
+						},
+						"description": "Đồng bộ tài khoản Google OAuth (dùng bởi NextAuth callback). Trả về user + accessToken + set cookie refreshToken."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Đăng nhập Google thành công!\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"69ab18dfb697590d43fbbbda\",\n      \"name\": \"Nguyễn Văn A\",\n      \"email\": \"student@gmail.com\",\n      \"role\": \"STUDENT\"\n    },\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🌐 Public",
+			"description": "Endpoint công khai, không cần xác thực. Mounted tại `/api/public`.\n\n⚠️ **Lưu ý**: `GET /courses` và `GET /courses/:slug` trả về dữ liệu **trực tiếp (không wrap)** — không có envelope `{ status, data }`.",
+			"item": [
+				{
+					"name": "Health Check (Public)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/public/health",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "health"]
+						},
+						"description": "Kiểm tra trạng thái server."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Noble-Cert API is running smoothly\",\n  \"data\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Health Check (Root)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/health",
+							"host": ["{{base_url}}"],
+							"path": ["api", "health"]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Noble-Cert API is running smoothly\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Published Courses",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/public/courses?limit=20",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "courses"],
+							"query": [
+								{ "key": "limit", "value": "20", "description": "Tối đa 50. Mặc định: 20." }
+							]
+						},
+						"description": "Lấy danh sách khoá học đã publish. Trả về **array trực tiếp** (không wrap envelope)."
+					},
+					"response": [
+						{
+							"name": "200 OK — Array trực tiếp",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "[\n  {\n    \"_id\": \"69ab043585e4f145461ec08d\",\n    \"id\": \"69ab043585e4f145461ec08d\",\n    \"title\": \"Thiết kế giao diện người dùng (UI/UX) cho người mới\",\n    \"description\": \"Nắm vững các nguyên tắc thiết kế và sử dụng Figma.\",\n    \"price\": 950000,\n    \"status\": \"PUBLISHED\",\n    \"settings\": {\n      \"thumbnail\": \"https://images.unsplash.com/photo-1586717791821-3f44a563eb4c\",\n      \"category\": \"Design\",\n      \"slug\": \"ui-ux-design-basics\",\n      \"passing_score\": 75,\n      \"is_sequential\": false\n    },\n    \"instructor\": {\n      \"name\": \"Giảng viên Noble Cert\"\n    }\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Verify Certificate",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/public/verify/NC-5AF49C24",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "verify", "NC-5AF49C24"]
+						},
+						"description": "Xác minh chứng chỉ theo serial `NC-XXXXXXXX`. Public — không cần xác thực.\n\nSerial format: `NC-` + 8 ký tự cuối của enrollment ID (uppercase hex)."
+					},
+					"response": [
+						{
+							"name": "200 Valid",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Chứng chỉ hợp lệ\",\n  \"data\": {\n    \"serialNumber\": \"NC-5AF49C24\",\n    \"issuedDate\": \"2026-03-06T10:00:00.000Z\",\n    \"courseId\": {\n      \"_id\": \"69ab043585e4f145461ec08d\",\n      \"name\": \"Thiết kế UI/UX cho người mới\"\n    },\n    \"issuerId\": {\n      \"name\": \"Giảng viên Noble Cert\"\n    },\n    \"userInfo\": {\n      \"name\": \"Nguyễn Văn A\",\n      \"email\": \"student@noble.vn\"\n    }\n  }\n}"
+						},
+						{
+							"name": "404 Not Found",
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"fail\",\n  \"message\": \"Chứng chỉ không hợp lệ hoặc không tồn tại\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Certificate Preview (SVG Image)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/public/verify/NC-5AF49C24/preview",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "verify", "NC-5AF49C24", "preview"]
+						},
+						"description": "Trả về file SVG chứng chỉ dạng ảnh (Content-Type: image/svg+xml). Dùng cho thẻ `<img>` trên trang xác minh và nút Download."
+					},
+					"response": [
+						{
+							"name": "200 SVG Image",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "xml",
+							"body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1200\" height=\"849\">...</svg>"
+						}
+					]
+				},
+				{
+					"name": "Get Course by Slug",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/public/courses/ui-ux-design-basics",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "courses", "ui-ux-design-basics"]
+						},
+						"description": "Lấy thông tin 1 khoá học theo slug. Trả về **object trực tiếp** (không wrap envelope)."
+					},
+					"response": [
+						{
+							"name": "200 OK — Object trực tiếp",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"_id\": \"69ab043585e4f145461ec08d\",\n  \"id\": \"69ab043585e4f145461ec08d\",\n  \"title\": \"Thiết kế giao diện người dùng (UI/UX) cho người mới\",\n  \"description\": \"Nắm vững các nguyên tắc thiết kế và sử dụng Figma.\",\n  \"price\": 950000,\n  \"status\": \"PUBLISHED\",\n  \"units\": [\n    {\n      \"unitId\": \"design-unit-1\",\n      \"title\": \"Nguyên lý màu sắc trong UI\",\n      \"type\": \"video\",\n      \"contentUrl\": \"https://www.youtube.com/watch?v=LAK9U18iT8s\",\n      \"duration\": 450\n    },\n    {\n      \"unitId\": \"design-exam\",\n      \"title\": \"Trắc nghiệm màu sắc\",\n      \"type\": \"exam\"\n    }\n  ],\n  \"settings\": {\n    \"thumbnail\": \"https://images.unsplash.com/photo-1586717791821-3f44a563eb4c\",\n    \"category\": \"Design\",\n    \"slug\": \"ui-ux-design-basics\",\n    \"passing_score\": 75\n  }\n}"
+						},
+						{
+							"name": "404 Not Found",
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"fail\",\n  \"message\": \"Không tìm thấy khoá học\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "📚 Student — Public (Email-based)",
+			"description": "Endpoint cho student dùng email từ NextAuth session. **Không cần JWT**, truyền email qua query string.\n\nMounted tại cả `/api/v1/student` và `/api/student`.\n\nResponse luôn có envelope `{ status, data }`.",
+			"item": [
+				{
+					"name": "Get My Courses",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/student/my-courses?email=student@noble.vn",
+							"host": ["{{base_url}}"],
+							"path": ["api", "student", "my-courses"],
+							"query": [
+								{ "key": "email", "value": "student@noble.vn", "description": "Email của user (từ NextAuth session)" }
+							]
+						},
+						"description": "Lấy danh sách khoá học đã đăng ký kèm progress%. Dùng cho dashboard student."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": [\n    {\n      \"_id\": \"enrollment_id_here\",\n      \"courseId\": {\n        \"_id\": \"69ab043585e4f145461ec08d\",\n        \"name\": \"Thiết kế UI/UX cho người mới\",\n        \"thumbnail\": \"https://images.unsplash.com/...\",\n        \"author\": \"Giảng viên Noble Cert\"\n      },\n      \"status\": \"ACTIVE\",\n      \"progress\": 35,\n      \"lastAccessedAt\": \"2026-03-06T10:00:00.000Z\"\n    }\n  ]\n}"
+						},
+						{
+							"name": "400 Missing Email",
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"fail\",\n  \"message\": \"Thiếu tham số email\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get My Certificates",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/student/my-certificates?email=student@noble.vn",
+							"host": ["{{base_url}}"],
+							"path": ["api", "student", "my-certificates"],
+							"query": [
+								{ "key": "email", "value": "student@noble.vn" }
+							]
+						},
+						"description": "Lấy danh sách chứng chỉ đã nhận (enrollment status = COMPLETED)."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": [\n    {\n      \"serial\": \"NC-ABC12345\",\n      \"issuedAt\": \"2026-03-01T00:00:00.000Z\",\n      \"course\": {\n        \"title\": \"Thiết kế UI/UX cho người mới\",\n        \"slug\": \"ui-ux-design-basics\"\n      },\n      \"userInfo\": {\n        \"name\": \"Nguyễn Văn A\",\n        \"email\": \"student@noble.vn\"\n      }\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Course Content",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/student/course-content/{{course_id}}?email=student@noble.vn",
+							"host": ["{{base_url}}"],
+							"path": ["api", "student", "course-content", "{{course_id}}"],
+							"query": [
+								{ "key": "email", "value": "student@noble.vn" }
+							]
+						},
+						"description": "Lấy nội dung khoá học kèm tiến độ học tập. Dùng cho trang learn/[courseId]."
+					},
+					"response": [
+						{
+							"name": "200 OK — Đã đăng ký",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"course\": {\n      \"_id\": \"69ab043585e4f145461ec08d\",\n      \"id\": \"69ab043585e4f145461ec08d\",\n      \"name\": \"Thiết kế UI/UX cho người mới\",\n      \"title\": \"Thiết kế UI/UX cho người mới\",\n      \"description\": \"Nắm vững các nguyên tắc thiết kế và sử dụng Figma.\",\n      \"price\": 950000,\n      \"instructor\": \"Giảng viên Noble Cert\",\n      \"sections\": [\n        {\n          \"_id\": \"default\",\n          \"title\": \"Nội dung khóa học\",\n          \"isLocked\": false,\n          \"units\": [\n            {\n              \"_id\": \"design-unit-1\",\n              \"title\": \"Nguyên lý màu sắc trong UI\",\n              \"type\": \"VIDEO\",\n              \"contentUrl\": \"https://www.youtube.com/watch?v=LAK9U18iT8s\",\n              \"duration\": 450,\n              \"isCompleted\": false\n            },\n            {\n              \"_id\": \"design-exam\",\n              \"title\": \"Trắc nghiệm màu sắc\",\n              \"type\": \"EXAM\",\n              \"isCompleted\": false\n            }\n          ]\n        }\n      ],\n      \"settings\": {\n        \"thumbnail\": \"https://images.unsplash.com/photo-1586717791821-3f44a563eb4c\",\n        \"category\": \"Design\",\n        \"passing_score\": 75,\n        \"is_sequential\": false,\n        \"slug\": \"ui-ux-design-basics\"\n      }\n    },\n    \"completedUnits\": [\"design-unit-1\"],\n    \"progress\": 50,\n    \"examScore\": 0,\n    \"isCertified\": false,\n    \"certificateSerial\": null\n  }\n}"
+						},
+						{
+							"name": "403 Not Enrolled",
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"fail\",\n  \"message\": \"Bạn chưa đăng ký khoá học này\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Course Status",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/student/{{course_id}}/status?email=student@noble.vn",
+							"host": ["{{base_url}}"],
+							"path": ["api", "student", "{{course_id}}", "status"],
+							"query": [
+								{ "key": "email", "value": "student@noble.vn" }
+							]
+						},
+						"description": "Kiểm tra tình trạng đủ điều kiện nhận chứng chỉ. Dùng cho trang claim certificate."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"isEligible\": true,\n    \"missingRequirements\": [],\n    \"examScore\": 80,\n    \"isEligibleForCertificate\": true,\n    \"progress\": 100\n  }\n}"
+						},
+						{
+							"name": "200 OK — Chưa đủ điều kiện",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"isEligible\": false,\n    \"missingRequirements\": [\"Chưa hoàn thành tất cả bài học\", \"Chưa vượt qua bài thi\"],\n    \"examScore\": 0,\n    \"isEligibleForCertificate\": false,\n    \"progress\": 50\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🎓 Student — Protected (JWT)",
+			"description": "Endpoint yêu cầu `Authorization: Bearer {{access_token}}`.\n\nMounted tại `/api/v1/student` (và `/api/student` — cùng router).",
+			"item": [
+				{
+					"name": "Enroll in Course",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{course_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/enroll",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "enroll"]
+						},
+						"description": "Đăng ký khoá học miễn phí. Khoá học có giá > 0 cần dùng luồng payment thay thế."
+					},
+					"response": [
+						{
+							"name": "201 Enrolled",
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Đăng ký khoá học thành công!\",\n  \"data\": { \"enrolled\": true }\n}"
+						},
+						{
+							"name": "200 Already Enrolled",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Bạn đã đăng ký khoá học này rồi.\",\n  \"data\": { \"alreadyEnrolled\": true }\n}"
+						},
+						{
+							"name": "402 Paid Course",
+							"status": "Payment Required",
+							"code": 402,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"fail\",\n  \"message\": \"Khoá học này yêu cầu thanh toán. Vui lòng dùng luồng payment.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Check Enrollment",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/check-enrollment?courseId={{course_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "check-enrollment"],
+							"query": [
+								{ "key": "courseId", "value": "{{course_id}}" }
+							]
+						},
+						"description": "Kiểm tra xem user hiện tại đã đăng ký khoá học chưa."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": { \"isEnrolled\": true }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Exam Questions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/{{course_id}}/exam",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "{{course_id}}", "exam"]
+						},
+						"description": "Lấy danh sách câu hỏi thi. `options` là `string[]`. Không trả về `correctAnswer`."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"questions\": [\n      {\n        \"id\": \"dq1\",\n        \"question\": \"Màu nào thường dùng cho thông báo lỗi?\",\n        \"options\": [\"Xanh lá\", \"Đỏ\", \"Vàng\"]\n      },\n      {\n        \"id\": \"dq2\",\n        \"question\": \"Font chữ nào phù hợp cho body text?\",\n        \"options\": [\"Display serif\", \"Sans-serif\", \"Monospace\"]\n      }\n    ],\n    \"duration\": 2700,\n    \"passingScore\": 75\n  }\n}"
+						},
+						{
+							"name": "403 Not Enrolled",
+							"status": "Forbidden",
+							"code": 403,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"fail\",\n  \"message\": \"Bạn chưa đăng ký khóa học này\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Heartbeat (Video Progress)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"currentPosition\": 120,\n  \"timeAdded\": 30\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/{{course_id}}/unit/{{unit_id}}/heartbeat",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "{{course_id}}", "unit", "{{unit_id}}", "heartbeat"]
+						},
+						"description": "Gửi heartbeat định kỳ (mỗi 30 giây) khi xem video. Cập nhật `lastWatchedPosition` và cộng dồn `timeSpent` vào DB.\n\n- `currentPosition`: vị trí hiện tại (giây)\n- `timeAdded`: thời gian xem thêm kể từ lần gọi trước (giây)"
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"lastWatchedPosition\": 120,\n    \"timeSpent\": 90\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Complete Unit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"videoDuration\": 212,\n  \"forceComplete\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/{{course_id}}/unit/{{unit_id}}/complete",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "{{course_id}}", "unit", "{{unit_id}}", "complete"]
+						},
+						"description": "Đánh dấu unit hoàn thành.\n\n- `videoDuration` (tuỳ chọn): thời lượng thực tế của video (giây) — frontend gửi khi video kết thúc để tránh sai lệch với DB\n- `forceComplete` (tuỳ chọn, mặc định `false`): bỏ qua kiểm tra thời lượng xem tối thiểu (dùng khi user nhấn nút \"Đánh dấu hoàn thành\" thủ công)\n\n**Logic validation (nếu `forceComplete = false`):**\n- Video: phải xem ≥ 90% thời lượng\n- Document: phải xem ≥ 70% estimated time"
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"success\": true,\n    \"message\": \"Hoàn thành unit thành công\"\n  }\n}"
+						},
+						{
+							"name": "400 Watch Time Insufficient",
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"fail\",\n  \"message\": \"Bạn chưa hoàn thành đủ thời lượng video yêu cầu\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Complete Unit (Force)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"forceComplete\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/{{course_id}}/unit/{{unit_id}}/complete",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "{{course_id}}", "unit", "{{unit_id}}", "complete"]
+						},
+						"description": "Đánh dấu hoàn thành thủ công (bypass kiểm tra thời gian xem). Dùng khi user nhấn nút \"Đánh dấu hoàn thành\"."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"success\": true,\n    \"message\": \"Hoàn thành unit thành công\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Submit Exam",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"answers\": {\n    \"dq1\": \"Đỏ\",\n    \"dq2\": \"Sans-serif\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/student/{{course_id}}/exam/submit",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "student", "{{course_id}}", "exam", "submit"]
+						},
+						"description": "Nộp bài thi. `answers` là object `{ [questionId]: answerText }`.\n\n- Tự động chấm điểm\n- Nếu đạt (`score >= passingScore`): kích hoạt kiểm tra cấp chứng chỉ tự động"
+					},
+					"response": [
+						{
+							"name": "200 Passed",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"score\": 100,\n    \"passed\": true,\n    \"isPassed\": true,\n    \"attemptId\": \"attempt_id_here\"\n  }\n}"
+						},
+						{
+							"name": "200 Failed",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"score\": 50,\n    \"passed\": false,\n    \"isPassed\": false,\n    \"attemptId\": \"attempt_id_here\"\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🏫 Instructor (JWT + Role)",
+			"description": "Quản lý khoá học — yêu cầu JWT và role `INSTRUCTOR` hoặc `SUPER_ADMIN`.\n\nMounted tại `/api/v1/instructor`.",
+			"item": [
+				{
+					"name": "Create Course (Draft)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Lập trình Python cho người mới\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/instructor/courses",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "instructor", "courses"]
+						},
+						"description": "Tạo khoá học mới ở trạng thái DRAFT. Chỉ cần `title`."
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Khởi tạo khóa học thành công!\",\n  \"data\": {\n    \"course\": {\n      \"id\": \"69ab043585e4f145461ec09c\",\n      \"title\": \"Lập trình Python cho người mới\",\n      \"status\": \"DRAFT\",\n      \"instructorId\": \"69ab003133152a4b9acc1aaa\"\n    }\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Course",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Học Python từ A-Z, xây dựng ứng dụng thực tế.\",\n  \"settings\": {\n    \"thumbnail\": \"https://images.unsplash.com/photo-...\",\n    \"category\": \"Programming\",\n    \"slug\": \"python-for-beginners\",\n    \"passing_score\": 80,\n    \"is_sequential\": true\n  },\n  \"units\": [\n    {\n      \"unitId\": \"py-unit-1\",\n      \"title\": \"Giới thiệu Python\",\n      \"type\": \"VIDEO\",\n      \"contentUrl\": \"https://www.youtube.com/watch?v=...\",\n      \"duration\": 600\n    },\n    {\n      \"unitId\": \"py-exam\",\n      \"title\": \"Kiểm tra cuối khoá\",\n      \"type\": \"EXAM\",\n      \"questions\": [\n        {\n          \"id\": \"pyq1\",\n          \"question\": \"Python là ngôn ngữ gì?\",\n          \"options\": [\"Biên dịch\", \"Thông dịch\", \"Hợp ngữ\"],\n          \"correctAnswer\": \"Thông dịch\"\n        }\n      ]\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/instructor/courses/{{course_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "instructor", "courses", "{{course_id}}"]
+						},
+						"description": "Cập nhật nội dung khoá học. Body có thể chứa bất kỳ field nào cần update."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Cập nhật nội dung khóa học thành công!\",\n  \"data\": {\n    \"course\": {\n      \"id\": \"69ab043585e4f145461ec09c\",\n      \"title\": \"Lập trình Python cho người mới\",\n      \"status\": \"DRAFT\"\n    }\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Publish Course",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/instructor/courses/{{course_id}}/publish",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "instructor", "courses", "{{course_id}}", "publish"]
+						},
+						"description": "Chuyển khoá học từ DRAFT sang PUBLISHED."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"message\": \"Khóa học đã được xuất bản thành công!\",\n  \"data\": {\n    \"course\": {\n      \"id\": \"69ab043585e4f145461ec09c\",\n      \"status\": \"PUBLISHED\"\n    }\n  }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "💳 Payment (JWT)",
+			"description": "Xử lý thanh toán qua PayOS. Mounted tại `/api/v1/payment`.\n\n- `POST /webhook`: không cần JWT (PayOS gọi trực tiếp)\n- Các endpoint còn lại: cần JWT Bearer",
+			"item": [
+				{
+					"name": "Create Payment Link",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{course_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/payment/create-link",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "payment", "create-link"]
+						},
+						"description": "Tạo link thanh toán PayOS. Rate limit: 5 requests / 10 phút / IP."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"checkoutUrl\": \"https://pay.payos.vn/web/...\",\n    \"qrCode\": \"00020101021238570010A000000727...\",\n    \"orderCode\": 1234567890,\n    \"amount\": 950000\n  }\n}"
+						},
+						{
+							"name": "429 Rate Limited",
+							"status": "Too Many Requests",
+							"code": 429,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"fail\",\n  \"message\": \"Bạn đã tạo quá nhiều đơn hàng. Vui lòng thử lại sau 10 phút.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Check Payment Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/payment/status/1234567890",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "payment", "status", "1234567890"]
+						},
+						"description": "Polling trạng thái đơn hàng sau khi user quét QR. Dùng để xác nhận thanh toán thành công."
+					},
+					"response": [
+						{
+							"name": "200 Paid",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"orderStatus\": \"SUCCESS\",\n    \"isPaid\": true,\n    \"certificate\": {\n      \"serial\": \"NC-ABC12345\"\n    },\n    \"message\": \"Thanh toán thành công\"\n  }\n}"
+						},
+						{
+							"name": "200 Pending",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{\n  \"status\": \"success\",\n  \"data\": {\n    \"orderStatus\": \"PENDING\",\n    \"isPaid\": false,\n    \"certificate\": null,\n    \"message\": \"Chờ thanh toán\"\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "PayOS Webhook",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"code\": \"00\",\n  \"desc\": \"success\",\n  \"data\": {\n    \"orderCode\": 1234567890,\n    \"amount\": 950000,\n    \"description\": \"Noble Cert Payment\",\n    \"accountNumber\": \"12345678\",\n    \"reference\": \"TXN_REF\",\n    \"transactionDateTime\": \"2026-03-06 10:00:00\",\n    \"paymentLinkId\": \"link_id_here\",\n    \"code\": \"00\",\n    \"desc\": \"Thành công\"\n  },\n  \"signature\": \"hmac_signature_here\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/payment/webhook",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "payment", "webhook"]
+						},
+						"description": "Webhook PayOS gọi khi thanh toán thành công. Không cần JWT. Luôn trả về HTTP 200 để tránh retry loop."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{ \"error\": 0, \"message\": \"Ok\", \"data\": null }"
+						},
+						{
+							"name": "200 Error (webhook vẫn trả 200)",
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"body": "{ \"error\": -1, \"message\": \"Invalid signature\", \"data\": null }"
+						}
+					]
+				}
+			]
+		}
+	]
+}
