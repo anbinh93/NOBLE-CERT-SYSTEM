@@ -1,0 +1,307 @@
+{
+  "info": {
+    "_postman_id": "7b6d7e7e-1f6c-4b1d-9e6e-2e9e2d7a0b1a",
+    "name": "Noble Cert API",
+    "description": "Postman Collection (v2.1) cho backend Noble Cert.\n\n- Base URL: {{base_url}}\n- JWT: Authorization: Bearer {{access_token}}\n- Email-based: dùng query param ?email={{email}}\n",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000", "type": "string" },
+    { "key": "email", "value": "quyduc1404@gmail.com", "type": "string" },
+    { "key": "access_token", "value": "", "type": "string" },
+    { "key": "course_id", "value": "", "type": "string" },
+    { "key": "unit_id", "value": "", "type": "string" },
+    { "key": "order_code", "value": "", "type": "string" },
+    { "key": "file_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth (/api/v1/auth)",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nguyễn Văn A\",\n  \"email\": \"student@noble.vn\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/auth/register"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@noble.vn\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/auth/login"
+          }
+        },
+        {
+          "name": "Refresh",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/auth/refresh"
+          }
+        },
+        {
+          "name": "Google Sync",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@gmail.com\",\n  \"name\": \"Nguyễn Văn A\",\n  \"image\": \"https://lh3.googleusercontent.com/...\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/auth/google-sync"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public (/api/public)",
+      "item": [
+        { "name": "Health", "request": { "method": "GET", "url": "{{base_url}}/api/public/health" } },
+        {
+          "name": "Courses",
+          "request": { "method": "GET", "url": "{{base_url}}/api/public/courses?limit=20" }
+        },
+        {
+          "name": "Course by Slug",
+          "request": { "method": "GET", "url": "{{base_url}}/api/public/courses/ui-ux-design-basics" }
+        },
+        {
+          "name": "Verify Certificate",
+          "request": { "method": "GET", "url": "{{base_url}}/api/public/verify/NC-XXXXXXXX" }
+        },
+        {
+          "name": "Certificate Preview (SVG)",
+          "request": { "method": "GET", "url": "{{base_url}}/api/public/verify/NC-XXXXXXXX/preview" }
+        }
+      ]
+    },
+    {
+      "name": "Student (Email-based) (/api/student)",
+      "item": [
+        {
+          "name": "My Courses",
+          "request": { "method": "GET", "url": "{{base_url}}/api/student/my-courses?email={{email}}" }
+        },
+        {
+          "name": "My Certificates",
+          "request": { "method": "GET", "url": "{{base_url}}/api/student/my-certificates?email={{email}}" }
+        },
+        {
+          "name": "Course Content",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/student/course-content/{{course_id}}?email={{email}}"
+          }
+        },
+        {
+          "name": "Course Status",
+          "request": { "method": "GET", "url": "{{base_url}}/api/student/{{course_id}}/status?email={{email}}" }
+        }
+      ]
+    },
+    {
+      "name": "Student (JWT) (/api/v1/student)",
+      "item": [
+        {
+          "name": "Enroll (free)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"courseId\": \"{{course_id}}\"\n}" },
+            "url": "{{base_url}}/api/v1/student/enroll"
+          }
+        },
+        {
+          "name": "Check Enrollment",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/v1/student/check-enrollment?courseId={{course_id}}"
+          }
+        },
+        {
+          "name": "Get Exam",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/v1/student/{{course_id}}/exam"
+          }
+        },
+        {
+          "name": "Heartbeat",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"currentPosition\": 120,\n  \"timeAdded\": 30\n}" },
+            "url": "{{base_url}}/api/v1/student/{{course_id}}/unit/{{unit_id}}/heartbeat"
+          }
+        },
+        {
+          "name": "Complete Unit",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"forceComplete\": true\n}" },
+            "url": "{{base_url}}/api/v1/student/{{course_id}}/unit/{{unit_id}}/complete"
+          }
+        },
+        {
+          "name": "Submit Exam",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"answers\": {}\n}" },
+            "url": "{{base_url}}/api/v1/student/{{course_id}}/exam/submit"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Instructor (/api/v1/instructor)",
+      "item": [
+        {
+          "name": "Create Draft Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Khoá học mới\"\n}" },
+            "url": "{{base_url}}/api/v1/instructor/courses"
+          }
+        },
+        {
+          "name": "Update Course",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"...\"\n}" },
+            "url": "{{base_url}}/api/v1/instructor/courses/{{course_id}}"
+          }
+        },
+        {
+          "name": "Publish Course",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/v1/instructor/courses/{{course_id}}/publish"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment (/api/v1/payment)",
+      "item": [
+        {
+          "name": "Webhook (no auth)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"00\",\n  \"data\": {}\n}" },
+            "url": "{{base_url}}/api/v1/payment/webhook"
+          }
+        },
+        {
+          "name": "Create Link",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"courseId\": \"{{course_id}}\"\n}" },
+            "url": "{{base_url}}/api/v1/payment/create-link"
+          }
+        },
+        {
+          "name": "Create Certificate Link",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"courseId\": \"{{course_id}}\"\n}" },
+            "url": "{{base_url}}/api/v1/payment/certificate"
+          }
+        },
+        {
+          "name": "Check Status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/v1/payment/status/{{order_code}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin (/api/v1/admin)",
+      "item": [
+        {
+          "name": "Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/v1/admin/dashboard/stats"
+          }
+        },
+        {
+          "name": "List Courses",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/v1/admin/courses?page=1&limit=20"
+          }
+        },
+        {
+          "name": "Upload Course Thumbnail",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": "" }]
+            },
+            "url": "{{base_url}}/api/v1/admin/uploads/course-thumbnail"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Files (/api/v1/files)",
+      "item": [
+        {
+          "name": "Stream File",
+          "request": { "method": "GET", "url": "{{base_url}}/api/v1/files/{{file_id}}" }
+        }
+      ]
+    }
+  ]
+}

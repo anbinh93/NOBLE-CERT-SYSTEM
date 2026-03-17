@@ -1,0 +1,760 @@
+{
+  "info": {
+    "_postman_id": "ea598b63-1276-4de4-86dc-21e7a709597f",
+    "name": "payOS API (latest)",
+    "description": "Danh sách các API payOS hỗ trợ.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "v2",
+      "item": [
+        {
+          "name": "Tạo link thanh toán",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-partner-code",
+                "value": "",
+                "description": "Partner Code tham gia chương trình tích hợp đối tác payOS Tại đây"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payment-requests"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo link thanh toán",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-partner-code",
+                "value": "",
+                "description": "Partner Code tham gia chương trình tích hợp đối tác payOS Tại đây"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payment-requests"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy thông tin link thanh toán",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-requests/{id}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payment-requests",
+                ":id"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy thông tin link thanh toán",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-requests/{id}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payment-requests",
+                ":id"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Huỷ link thanh toán",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-requests/{id}/cancel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payment-requests",
+                ":id",
+                "cancel"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Huỷ link thanh toán",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-requests/{id}/cancel",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payment-requests",
+                ":id",
+                "cancel"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy thông tin hóa đơn",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-requests/{id}/invoices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payment-requests",
+                ":id",
+                "invoices"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy thông tin hóa đơn",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-requests/{id}/invoices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payment-requests",
+                ":id",
+                "invoices"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tải hóa đơn",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-requests/{id}/invoices/{invoice-id}/download",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payment-requests",
+                ":id",
+                "invoices",
+                ":invoice-id",
+                "download"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tải hóa đơn",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v2/payment-requests/{id}/invoices/{invoice-id}/download",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payment-requests",
+                ":id",
+                "invoices",
+                ":invoice-id",
+                "download"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "confirm-webhook",
+      "item": [
+        {
+          "name": "Kiểm tra và thêm hoặc cập nhật Webhook url",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/confirm-webhook",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "confirm-webhook"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Kiểm tra và thêm hoặc cập nhật Webhook url",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/confirm-webhook",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "confirm-webhook"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "v1",
+      "item": [
+        {
+          "name": "Tạo lệnh chi đơn",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-idempotency-key",
+                "value": "",
+                "description": "Khóa để đảm bảo tính duy nhất của request"
+              },
+              {
+                "key": "x-signature",
+                "value": "",
+                "description": "Chữ ký xác thực request"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo lệnh chi đơn",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-idempotency-key",
+                "value": "",
+                "description": "Khóa để đảm bảo tính duy nhất của request"
+              },
+              {
+                "key": "x-signature",
+                "value": "",
+                "description": "Chữ ký xác thực request"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy danh sách lệnh chi",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "",
+                  "description": "Số lượng kết quả trên mỗi trang"
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "description": "Vị trí bắt đầu"
+                },
+                {
+                  "key": "referenceId",
+                  "value": "",
+                  "description": "Mã tham chiếu để lọc"
+                },
+                {
+                  "key": "approvalState",
+                  "value": "",
+                  "description": "Trạng thái phê duyệt để lọc"
+                },
+                {
+                  "key": "category",
+                  "value": "",
+                  "description": "Danh mục để lọc (phân cách bằng dấu phẩy)"
+                },
+                {
+                  "key": "fromDate",
+                  "value": "",
+                  "description": "Lọc từ ngày (ISO 8601 format)"
+                },
+                {
+                  "key": "toDate",
+                  "value": "",
+                  "description": "Lọc đến ngày (ISO 8601 format)"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy danh sách lệnh chi",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "",
+                  "description": "Số lượng kết quả trên mỗi trang"
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "description": "Vị trí bắt đầu"
+                },
+                {
+                  "key": "referenceId",
+                  "value": "",
+                  "description": "Mã tham chiếu để lọc"
+                },
+                {
+                  "key": "approvalState",
+                  "value": "",
+                  "description": "Trạng thái phê duyệt để lọc"
+                },
+                {
+                  "key": "category",
+                  "value": "",
+                  "description": "Danh mục để lọc (phân cách bằng dấu phẩy)"
+                },
+                {
+                  "key": "fromDate",
+                  "value": "",
+                  "description": "Lọc từ ngày (ISO 8601 format)"
+                },
+                {
+                  "key": "toDate",
+                  "value": "",
+                  "description": "Lọc đến ngày (ISO 8601 format)"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo lệnh chi hàng loạt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-idempotency-key",
+                "value": "",
+                "description": "Khóa để đảm bảo tính duy nhất của request"
+              },
+              {
+                "key": "x-signature",
+                "value": "",
+                "description": "Chữ ký xác thực request"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts/batch",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts",
+                "batch"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Tạo lệnh chi hàng loạt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-idempotency-key",
+                "value": "",
+                "description": "Khóa để đảm bảo tính duy nhất của request"
+              },
+              {
+                "key": "x-signature",
+                "value": "",
+                "description": "Chữ ký xác thực request"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts/batch",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts",
+                "batch"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy thông tin lệnh chi",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts/{payoutId}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts",
+                ":payoutId"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy thông tin lệnh chi",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts/{payoutId}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts",
+                ":payoutId"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ước tính chi phí",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-signature",
+                "value": "",
+                "description": "Chữ ký xác thực request"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts/estimate-credit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts",
+                "estimate-credit"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Ước tính chi phí",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-signature",
+                "value": "",
+                "description": "Chữ ký xác thực request"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts/estimate-credit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts",
+                "estimate-credit"
+              ],
+              "query": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy thông tin số dư tài khoản chi",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts-account/balance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts-account",
+                "balance"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lấy thông tin số dư tài khoản chi",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/payouts-account/balance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "payouts-account",
+                "balance"
+              ],
+              "query": []
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api.example.com",
+      "type": "string"
+    }
+  ]
+}

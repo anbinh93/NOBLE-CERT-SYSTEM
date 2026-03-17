@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "framework": "nextjs",
+  "regions": ["sin1"],
+  "buildCommand": "yarn build",
+  "installCommand": "yarn install --frozen-lockfile"
+}
+

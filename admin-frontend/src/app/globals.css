@@ -1,0 +1,169 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* Sidebar tokens */
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  /* Chart tokens – Noble Gold/Green palette */
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  /* Radius scale */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: var(--font-mono), ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+}
+
+/* ─────────────────────────────────────────
+   Noble Light Theme: Noble Mist & Deep Green
+   (Synced with frontend globals.css palette)
+   ───────────────────────────────────────── */
+:root {
+  --radius: 0.5rem;
+
+  --background: 164 40% 95%;         /* Noble Mist */
+  --foreground: 164 60% 8%;          /* Deep Forest Green */
+
+  --card: 164 30% 99%;
+  --card-foreground: 164 60% 8%;
+
+  --popover: 164 30% 99%;
+  --popover-foreground: 164 60% 8%;
+
+  --primary: 45 90% 32%;             /* Deep Royal Gold */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 164 30% 92%;
+  --secondary-foreground: 164 60% 8%;
+
+  --muted: 164 20% 90%;
+  --muted-foreground: 164 40% 35%;
+
+  --accent: 45 60% 90%;              /* Light Gold */
+  --accent-foreground: 45 90% 32%;
+
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 164 30% 85%;
+  --input: 164 30% 85%;
+  --ring: 45 90% 35%;                /* Gold Ring */
+
+  /* Sidebar – lighter Noble Mist */
+  --sidebar: 164 35% 97%;
+  --sidebar-foreground: 164 60% 8%;
+  --sidebar-primary: 45 90% 32%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 45 60% 90%;
+  --sidebar-accent-foreground: 45 90% 32%;
+  --sidebar-border: 164 30% 88%;
+  --sidebar-ring: 45 90% 35%;
+
+  /* Chart – Noble palette */
+  --chart-1: 45 85% 42%;             /* Royal Gold */
+  --chart-2: 164 55% 30%;            /* Forest Green */
+  --chart-3: 172 50% 45%;            /* Teal */
+  --chart-4: 45 65% 65%;             /* Warm Gold */
+  --chart-5: 160 45% 55%;            /* Mid Green */
+}
+
+/* ─────────────────────────────────────────
+   Noble Dark Theme: Deep Forest & Gold
+   ───────────────────────────────────────── */
+.dark {
+  --background: 164 81% 6%;          /* #031d16 Deep Forest */
+  --foreground: 45 30% 90%;          /* Champaign Gold text */
+
+  --card: 163 77% 8%;
+  --card-foreground: 45 30% 90%;
+
+  --popover: 163 77% 8%;
+  --popover-foreground: 45 30% 90%;
+
+  --primary: 46 65% 52%;             /* #d4af37 Noble Gold */
+  --primary-foreground: 164 81% 6%;
+
+  --secondary: 160 40% 15%;
+  --secondary-foreground: 45 30% 90%;
+
+  --muted: 160 40% 15%;
+  --muted-foreground: 160 20% 65%;
+
+  --accent: 46 65% 52%;
+  --accent-foreground: 164 81% 6%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 45 30% 90%;
+
+  --border: 46 30% 20%;
+  --input: 160 40% 15%;
+  --ring: 46 65% 52%;
+
+  /* Sidebar – darker variant of background */
+  --sidebar: 164 78% 5%;
+  --sidebar-foreground: 45 30% 90%;
+  --sidebar-primary: 46 65% 52%;
+  --sidebar-primary-foreground: 164 81% 6%;
+  --sidebar-accent: 160 40% 12%;
+  --sidebar-accent-foreground: 45 30% 90%;
+  --sidebar-border: 46 30% 18%;
+  --sidebar-ring: 46 65% 52%;
+
+  /* Chart – vivid variants on dark */
+  --chart-1: 46 65% 52%;             /* Noble Gold */
+  --chart-2: 164 55% 40%;            /* Forest Green */
+  --chart-3: 172 50% 50%;            /* Teal */
+  --chart-4: 45 60% 65%;             /* Warm Gold */
+  --chart-5: 160 50% 55%;            /* Mid Green */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
