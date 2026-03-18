@@ -6,26 +6,28 @@ Hệ thống cấp chứng chỉ trực tuyến — gồm Backend (Express + Pri
 
 - **Node.js** >= 18
 - **pnpm** >= 10 (`npm install -g pnpm`)
-- **Docker** (cho MongoDB, PostgreSQL, Redis)
+- **Docker** (cho MongoDB, Redis)
 
 ## 1. Khởi động Docker Services
 
 ```bash
-# MongoDB
-docker run -d --name noble-mongo -p 27017:27017 mongo:7
+# MongoDB (với Replica Set — bắt buộc cho Prisma + MongoDB)
+docker run -d --name noble-mongo -p 27017:27017 mongo:7 --replSet rs0
+
+# Khởi tạo Replica Set (chạy 1 lần duy nhất sau khi tạo container)
+docker exec noble-mongo mongosh --eval 'rs.initiate()'
 
 # Redis
 docker run -d --name redis -p 6379:6379 redis:alpine
-
-# PostgreSQL (nếu cần)
-docker run -d --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:16-alpine
 ```
 
-Kiểm tra containers đang chạy:
+Kiểm tra containers:
 
 ```bash
 docker ps
 ```
+
+> **Lưu ý:** Prisma yêu cầu MongoDB chạy ở chế độ Replica Set. Nếu bỏ `--replSet rs0` và `rs.initiate()` thì sẽ bị lỗi kết nối.
 
 ## 2. Cấu hình Environment
 
@@ -38,7 +40,7 @@ NODE_ENV=development
 PORT=5000
 CLIENT_URL=http://localhost:3000
 
-MONGODB_URI=mongodb://localhost:27017/noble-cert-dev
+MONGODB_URI=mongodb://localhost:27017/noble-cert-dev?directConnection=true
 REDIS_URL=redis://localhost:6379
 
 JWT_SECRET=your_super_secret_access_key
@@ -53,6 +55,8 @@ PAYOS_CHECKSUM_KEY=your_payos_checksum_key
 VIETQR_CLIENT_ID=your_vietqr_client_id
 VIETQR_API_KEY=your_vietqr_api_key
 ```
+
+> **Quan trọng:** Phải có `?directConnection=true` trong `MONGODB_URI` khi kết nối MongoDB local với Replica Set.
 
 ### `frontend/.env`
 
@@ -77,22 +81,30 @@ NEXT_PUBLIC_APP_URL=http://localhost:3001
 ## 3. Cài đặt Dependencies
 
 ```bash
-# Cài tất cả workspace cùng lúc (từ thư mục root)
+# Cài tất cả workspace (từ thư mục root)
 pnpm install
 
 # Approve build scripts (Prisma, bcrypt, sharp, ...)
 pnpm approve-builds
+# → Nhấn "a" để chọn tất cả, Enter, rồi "y" để xác nhận
 ```
 
-## 4. Khởi tạo Database (Prisma)
+## 4. Khởi tạo Database
 
 ```bash
 # Generate Prisma Client
 pnpm --filter noble-cert-backend exec npx prisma generate
 
-# (Tùy chọn) Seed dữ liệu mẫu
+# Seed dữ liệu mẫu
 pnpm --filter noble-cert-backend run seed
 ```
+
+### Tài khoản mẫu sau khi seed
+
+| Vai trò    | Email                    | Mật khẩu   |
+| ---------- | ------------------------ | ---------- |
+| Instructor | instructor@noblecert.com | admin123   |
+| Student    | student@example.com      | student123 |
 
 ## 5. Chạy dự án
 
@@ -102,39 +114,29 @@ pnpm --filter noble-cert-backend run seed
 pnpm dev
 ```
 
-Lệnh này sẽ khởi động đồng thời:
-
 | Service        | URL                   |
 | -------------- | --------------------- |
 | Frontend       | http://localhost:3000 |
-| Backend API    | http://localhost:5000 |
 | Admin Frontend | http://localhost:3001 |
+| Backend API    | http://localhost:5000 |
 
 ### Chạy từng project riêng
 
 ```bash
-# Backend
-pnpm --filter noble-cert-backend dev
-
-# Frontend
-pnpm --filter frontend dev
-
-# Admin Frontend
-pnpm --filter admin-frontend dev
+pnpm --filter frontend dev            # Frontend
+pnpm --filter noble-cert-backend dev   # Backend
+pnpm --filter admin-frontend dev       # Admin
 ```
 
 ## 6. Các lệnh hữu ích
 
 ```bash
-# Cài thêm package cho project cụ thể
-pnpm --filter frontend add <package-name>
-pnpm --filter noble-cert-backend add <package-name>
-pnpm --filter admin-frontend add <package-name>
+# Cài thêm package
+pnpm --filter frontend add <package>
+pnpm --filter noble-cert-backend add <package>
+pnpm --filter admin-frontend add <package>
 
-# Cài devDependencies
-pnpm --filter frontend add -D <package-name>
-
-# Chạy Prisma Studio (xem database trực quan)
+# Prisma Studio (xem database trực quan)
 pnpm --filter noble-cert-backend exec npx prisma studio
 
 # Build production
@@ -147,14 +149,38 @@ pnpm --filter admin-frontend build
 
 ```
 NOBLE-CERT-SYSTEM/
-├── backend/             # Express + Prisma + MongoDB
-│   ├── prisma/          # Schema & migrations
-│   └── src/             # Source code
-├── frontend/            # Next.js (User-facing)
-│   ├── app/             # App Router pages
-│   └── components/      # UI components
-├── admin-frontend/      # Next.js (Admin panel)
-│   └── src/             # Source code
-├── pnpm-workspace.yaml  # Workspace config
-└── package.json         # Root scripts
+├── backend/              # Express + Prisma + MongoDB
+│   ├── prisma/           # Schema
+│   └── src/              # Source code
+├── frontend/             # Next.js — User-facing (port 3000)
+│   ├── app/              # App Router pages
+│   └── components/       # UI components
+├── admin-frontend/       # Next.js — Admin panel (port 3001)
+│   └── src/              # Source code
+├── .npmrc                # pnpm config (shamefully-hoist)
+├── pnpm-workspace.yaml   # Workspace config
+└── package.json          # Root scripts
+```
+
+## Troubleshooting
+
+### Lỗi `Cannot find module '@tailwindcss/oxide-linux-x64-gnu'`
+
+```bash
+pnpm add -w @tailwindcss/oxide-linux-x64-gnu
+```
+
+### Lỗi `Cannot find module '.prisma/client/default'`
+
+```bash
+pnpm --filter noble-cert-backend exec npx prisma generate
+```
+
+### Lỗi `Server selection timeout` / `RsGhost` khi kết nối MongoDB
+
+```bash
+# Khởi tạo Replica Set
+docker exec noble-mongo mongosh --eval 'rs.initiate()'
+
+# Đảm bảo MONGODB_URI có ?directConnection=true
 ```
