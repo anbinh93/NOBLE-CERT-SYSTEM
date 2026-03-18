@@ -1,0 +1,14 @@
+packages:
+  - frontend
+  - backend
+  - admin-frontend
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - bcrypt
+  - core-js
+  - msw
+  - prisma
+  - sharp
+  - unrs-resolver

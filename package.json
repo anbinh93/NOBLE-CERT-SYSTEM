@@ -1,16 +1,14 @@
 {
-    "name": "noble-cert-root",
-    "version": "1.0.0",
-    "private": true,
-    "workspaces": [
-        "frontend",
-        "backend",
-        "admin-frontend"
-    ],
-    "scripts": {
-        "dev": "concurrently -n \"frontend,backend,admin\" -c \"cyan,green,magenta\" \"yarn workspace frontend dev\" \"yarn workspace noble-cert-backend dev\" \"yarn workspace admin-frontend dev\""
-    },
-    "devDependencies": {
-        "concurrently": "^8.2.2"
-    }
+  "name": "noble-cert-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n \"frontend,backend,admin\" -c \"cyan,green,magenta\" \"pnpm --filter frontend dev\" \"pnpm --filter noble-cert-backend dev\" \"pnpm --filter admin-frontend dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@tailwindcss/oxide-linux-x64-gnu": "4.2.1"
+  }
 }
