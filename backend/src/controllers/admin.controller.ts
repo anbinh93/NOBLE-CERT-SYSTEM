@@ -187,12 +187,10 @@ export const deleteUser = catchAsync(async (req: Request, res: Response) => {
       .json({ status: "fail", message: "Không tìm thấy người dùng" });
   }
   if (user.role === "SUPER_ADMIN") {
-    return res
-      .status(403)
-      .json({
-        status: "fail",
-        message: "Không thể xoá tài khoản Super Admin!",
-      });
+    return res.status(403).json({
+      status: "fail",
+      message: "Không thể xoá tài khoản Super Admin!",
+    });
   }
 
   await prisma.user.delete({ where: { id: req.params.id } });
@@ -440,3 +438,92 @@ export const updateProfile = catchAsync(async (req: Request, res: Response) => {
 
   sendSuccess(res, 200, { user }, "Cập nhật hồ sơ thành công!");
 });
+
+// ─── Get Certificates (Admin) ────────────────────────────────────────
+export const getCertificates = catchAsync(
+  async (req: Request, res: Response) => {
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+    const search = (req.query.search as string) || "";
+
+    // Certificates = enrollments with status COMPLETED + passed exam
+    const whereClause: any = { status: "COMPLETED" };
+
+    // Search by student name/email or course title
+    if (search) {
+      whereClause.OR = [
+        { user: { name: { contains: search, mode: "insensitive" } } },
+        { user: { email: { contains: search, mode: "insensitive" } } },
+        { course: { title: { contains: search, mode: "insensitive" } } },
+      ];
+    }
+
+    const [enrollments, total] = await Promise.all([
+      prisma.enrollment.findMany({
+        where: whereClause,
+        include: {
+          user: { select: { id: true, name: true, email: true } },
+          course: {
+            select: {
+              id: true,
+              title: true,
+              instructor: { select: { name: true } },
+            },
+          },
+          attempts: { orderBy: { score: "desc" }, take: 1 },
+        },
+        orderBy: { updatedAt: "desc" },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.enrollment.count({ where: whereClause }),
+    ]);
+
+    // Filter only those with passed exam & map to certificate shape
+    const certificates = enrollments
+      .filter((e) => e.attempts[0]?.isPassed)
+      .map((e) => ({
+        id: e.id,
+        serialNumber: `NC-${e.id.slice(-8).toUpperCase()}`,
+        student: e.user,
+        course: {
+          id: e.course.id,
+          title: e.course.title,
+          instructor: (e.course as any).instructor?.name ?? "N/A",
+        },
+        examScore: e.attempts[0]?.score ?? 0,
+        issuedDate: e.updatedAt,
+        status: "ACTIVE",
+      }));
+
+    sendSuccess(res, 200, {
+      certificates,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    });
+  },
+);
+
+// ─── Revoke Certificate (set enrollment back to ACTIVE) ──────────────
+export const revokeCertificate = catchAsync(
+  async (req: Request, res: Response) => {
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!enrollment) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Không tìm thấy chứng chỉ" });
+    }
+
+    await prisma.enrollment.update({
+      where: { id: req.params.id },
+      data: { status: "ACTIVE" },
+    });
+
+    sendSuccess(res, 200, null, "Đã thu hồi chứng chỉ!");
+  },
+);

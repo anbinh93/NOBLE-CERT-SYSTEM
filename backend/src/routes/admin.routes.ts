@@ -18,6 +18,8 @@ import {
   getInstructors,
   getMyProfile,
   updateProfile,
+  getCertificates,
+  revokeCertificate,
 } from "../controllers/admin.controller";
 
 const router = Router();
@@ -49,6 +51,10 @@ router.get("/instructors", getInstructors);
 
 // Orders
 router.get("/orders", getOrders);
+
+// Certificates
+router.get("/certificates", getCertificates);
+router.patch("/certificates/:id/revoke", revokeCertificate);
 
 // Profile
 router.get("/profile", getMyProfile);
