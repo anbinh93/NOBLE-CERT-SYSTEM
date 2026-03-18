@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_ROUTES = ['/login'];
+const PUBLIC_ROUTES = ["/login"];
 
 /**
  * Edge Middleware: Kiểm tra auth token trước khi cho phép truy cập.
@@ -14,21 +14,21 @@ const PUBLIC_ROUTES = ['/login'];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const authCookie = request.cookies.get('noble-cert-auth');
+  const authCookie = request.cookies.get("noble-cert-auth");
   const isAuthenticated = Boolean(authCookie?.value);
 
   const isPublicRoute = PUBLIC_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(route + '/'),
+    (route) => pathname === route || pathname.startsWith(route + "/"),
   );
 
   if (!isAuthenticated && !isPublicRoute) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('from', pathname);
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isAuthenticated && pathname === '/login') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  if (isAuthenticated && pathname === "/login") {
+    return NextResponse.redirect(new URL("/courses", request.url));
   }
 
   return NextResponse.next();
@@ -43,6 +43,6 @@ export const config = {
      * - favicon.ico
      * - api routes (nếu có)
      */
-    '/((?!_next/static|_next/image|favicon.ico|api/).*)',
+    "/((?!_next/static|_next/image|favicon.ico|api/).*)",
   ],
 };

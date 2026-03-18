@@ -158,3 +158,173 @@ export const getOrders = catchAsync(async (req: Request, res: Response) => {
     totalPages: Math.ceil(total / limit),
   });
 });
+
+// ─── Create Course (Draft) ───────────────────────────────────────────
+export const createCourse = catchAsync(async (req: Request, res: Response) => {
+  const { title, description, price, instructorId } = req.body;
+
+  if (!title || !title.trim()) {
+    return res
+      .status(400)
+      .json({ status: "fail", message: "Tiêu đề khóa học là bắt buộc!" });
+  }
+
+  const course = await prisma.course.create({
+    data: {
+      title: title.trim(),
+      description: description || "",
+      price: Number(price) || 0,
+      instructorId: instructorId || req.user.id,
+      status: "DRAFT",
+      units: [],
+      settings: { passing_score: 80, is_sequential: true } as any,
+    },
+    include: { instructor: { select: { name: true, email: true } } },
+  });
+
+  sendSuccess(res, 201, { course }, "Tạo khóa học thành công!");
+});
+
+// ─── Get Single Course ───────────────────────────────────────────────
+export const getCourseById = catchAsync(async (req: Request, res: Response) => {
+  const course = await prisma.course.findUnique({
+    where: { id: req.params.id },
+    include: {
+      instructor: { select: { id: true, name: true, email: true } },
+      _count: { select: { enrollments: true, orders: true } },
+    },
+  });
+
+  if (!course) {
+    return res
+      .status(404)
+      .json({ status: "fail", message: "Không tìm thấy khóa học" });
+  }
+
+  sendSuccess(res, 200, { course });
+});
+
+// ─── Update Course ───────────────────────────────────────────────────
+export const updateCourse = catchAsync(async (req: Request, res: Response) => {
+  const { title, description, price, instructorId, settings, units } = req.body;
+
+  const existing = await prisma.course.findUnique({
+    where: { id: req.params.id },
+  });
+  if (!existing) {
+    return res
+      .status(404)
+      .json({ status: "fail", message: "Không tìm thấy khóa học" });
+  }
+
+  const data: any = {};
+  if (title !== undefined) data.title = title.trim();
+  if (description !== undefined) data.description = description;
+  if (price !== undefined) data.price = Number(price);
+  if (instructorId !== undefined) data.instructorId = instructorId;
+  if (settings !== undefined) data.settings = settings;
+  if (units !== undefined) data.units = units;
+
+  const course = await prisma.course.update({
+    where: { id: req.params.id },
+    data,
+    include: {
+      instructor: { select: { id: true, name: true, email: true } },
+      _count: { select: { enrollments: true, orders: true } },
+    },
+  });
+
+  sendSuccess(res, 200, { course }, "Cập nhật khóa học thành công!");
+});
+
+// ─── Delete Course ───────────────────────────────────────────────────
+export const deleteCourse = catchAsync(async (req: Request, res: Response) => {
+  const existing = await prisma.course.findUnique({
+    where: { id: req.params.id },
+  });
+  if (!existing) {
+    return res
+      .status(404)
+      .json({ status: "fail", message: "Không tìm thấy khóa học" });
+  }
+
+  await prisma.course.delete({ where: { id: req.params.id } });
+  sendSuccess(res, 200, null, "Đã xoá khóa học!");
+});
+
+// ─── Publish Course ──────────────────────────────────────────────────
+export const publishCourse = catchAsync(async (req: Request, res: Response) => {
+  const course = await prisma.course.update({
+    where: { id: req.params.id },
+    data: { status: "PUBLISHED" },
+    include: { instructor: { select: { name: true, email: true } } },
+  });
+
+  sendSuccess(res, 200, { course }, "Xuất bản khóa học thành công!");
+});
+
+// ─── Archive Course ──────────────────────────────────────────────────
+export const archiveCourse = catchAsync(async (req: Request, res: Response) => {
+  const course = await prisma.course.update({
+    where: { id: req.params.id },
+    data: { status: "ARCHIVED" },
+    include: { instructor: { select: { name: true, email: true } } },
+  });
+
+  sendSuccess(res, 200, { course }, "Đã lưu trữ khóa học!");
+});
+
+// ─── Get Instructors (for dropdown) ──────────────────────────────────
+export const getInstructors = catchAsync(
+  async (_req: Request, res: Response) => {
+    const instructors = await prisma.user.findMany({
+      where: { role: "INSTRUCTOR" },
+      select: { id: true, name: true, email: true },
+      orderBy: { name: "asc" },
+    });
+
+    sendSuccess(res, 200, { instructors });
+  },
+);
+
+// ─── Get My Profile ──────────────────────────────────────────────────
+export const getMyProfile = catchAsync(async (req: Request, res: Response) => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isActive: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  sendSuccess(res, 200, { user });
+});
+
+// ─── Update My Profile ──────────────────────────────────────────────
+export const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  const { name } = req.body;
+
+  const data: any = {};
+  if (name !== undefined) data.name = name.trim();
+
+  const user = await prisma.user.update({
+    where: { id: req.user.id },
+    data,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isActive: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  sendSuccess(res, 200, { user }, "Cập nhật hồ sơ thành công!");
+});

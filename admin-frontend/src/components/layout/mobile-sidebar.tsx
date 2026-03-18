@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { SidebarBrand } from "./sidebar-brand";
 import { SidebarNav } from "./sidebar-nav";
-import { NAV_GROUPS } from "./nav-config";
+import { NAV_GROUPS, filterNavGroups } from "./nav-config";
 
 interface MobileSidebarProps {
   open: boolean;
@@ -21,8 +21,7 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
 
   if (!user) return null;
 
-  // Tạm thời: cho tất cả role xem tất cả tab
-  const visibleGroups = NAV_GROUPS;
+  const visibleGroups = filterNavGroups(NAV_GROUPS, user.role);
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>

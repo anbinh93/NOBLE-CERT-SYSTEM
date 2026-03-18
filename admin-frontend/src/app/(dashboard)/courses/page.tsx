@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -10,8 +11,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -20,12 +32,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Search, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { adminFetch } from "@/lib/api";
+import { useAuth } from "@/hooks/use-auth";
 
 interface Course {
   id: string;
   title: string;
+  description: string;
   price: number;
   status: string;
   createdAt: string;
@@ -50,6 +65,9 @@ function formatVND(amount: number) {
 }
 
 export default function CoursesPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "Super Admin";
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -57,6 +75,13 @@ export default function CoursesPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+
+  // Create dialog
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+  const [newPrice, setNewPrice] = useState("");
 
   const fetchCourses = () => {
     setLoading(true);
@@ -86,13 +111,111 @@ export default function CoursesPage() {
     fetchCourses();
   };
 
+  const handleCreate = async () => {
+    if (!newTitle.trim()) {
+      toast.error("Vui lòng nhập tiêu đề khóa học");
+      return;
+    }
+    setCreating(true);
+    try {
+      const data = await adminFetch<{ course: { id: string } }>("/courses", {
+        method: "POST",
+        body: JSON.stringify({
+          title: newTitle.trim(),
+          description: newDesc.trim(),
+          price: Number(newPrice) || 0,
+        }),
+      });
+      toast.success("Tạo khóa học thành công!");
+      setDialogOpen(false);
+      setNewTitle("");
+      setNewDesc("");
+      setNewPrice("");
+      // Navigate to the new course detail page
+      router.push(`/courses/${data.course.id}`);
+    } catch (err: any) {
+      toast.error(err.message || "Tạo khóa học thất bại");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Quản lý khoá học</h2>
-        <p className="text-muted-foreground">
-          Danh sách tất cả khoá học trên hệ thống.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Quản lý khoá học
+          </h2>
+          <p className="text-muted-foreground">
+            Danh sách tất cả khoá học trên hệ thống.
+          </p>
+        </div>
+        {isAdmin && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Tạo khoá học
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Tạo khoá học mới</DialogTitle>
+                <DialogDescription>
+                  Khoá học sẽ được tạo ở trạng thái Bản nháp. Bạn có thể chỉnh
+                  sửa và xuất bản sau.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 pt-2">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Tiêu đề khoá học *</Label>
+                  <Input
+                    id="title"
+                    placeholder="VD: Lập trình Web từ A đến Z"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="desc">Mô tả</Label>
+                  <Textarea
+                    id="desc"
+                    placeholder="Mô tả ngắn gọn về nội dung khoá học..."
+                    rows={3}
+                    value={newDesc}
+                    onChange={(e) => setNewDesc(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="price">Giá (VND)</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    placeholder="0 = Miễn phí"
+                    value={newPrice}
+                    onChange={(e) => setNewPrice(e.target.value)}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                  Hủy
+                </Button>
+                <Button onClick={handleCreate} disabled={creating}>
+                  {creating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Đang tạo...
+                    </>
+                  ) : (
+                    "Tạo khoá học"
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <Card>
@@ -158,7 +281,11 @@ export default function CoursesPage() {
                       variant: "secondary" as const,
                     };
                     return (
-                      <TableRow key={course.id}>
+                      <TableRow
+                        key={course.id}
+                        className="cursor-pointer hover:bg-accent/50"
+                        onClick={() => router.push(`/courses/${course.id}`)}
+                      >
                         <TableCell className="font-medium max-w-[280px] truncate">
                           {course.title}
                         </TableCell>

@@ -5,15 +5,10 @@ import {
   LayoutDashboard,
   Receipt,
   Settings,
+  User,
   Users,
-} from 'lucide-react';
-import {
-  COURSE_ROLES,
-  FINANCE_ROLES,
-  SYSTEM_CONFIG_ROLES,
-  USER_MANAGEMENT_ROLES,
-  type Role,
-} from '@/types/auth';
+} from "lucide-react";
+import { type Role } from "@/types/auth";
 
 export interface NavItem {
   title: string;
@@ -30,69 +25,80 @@ export interface NavGroup {
 
 export const NAV_GROUPS: NavGroup[] = [
   {
-    label: 'Tổng quan',
+    label: "Tổng quan",
     items: [
       {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: "Dashboard",
+        href: "/dashboard",
         icon: LayoutDashboard,
-        roles: ['Super Admin', 'Instructor', 'Support'],
+        roles: ["Super Admin"],
       },
     ],
   },
   {
-    label: 'Nội dung',
+    label: "Nội dung",
     items: [
       {
-        title: 'Khoá học',
-        href: '/courses',
+        title: "Khoá học",
+        href: "/courses",
         icon: BookOpen,
-        roles: COURSE_ROLES,
+        roles: ["Super Admin", "Instructor"],
       },
       {
-        title: 'Chứng chỉ',
-        href: '/certificates',
+        title: "Chứng chỉ",
+        href: "/certificates",
         icon: FileCheck2,
-        roles: COURSE_ROLES,
+        roles: ["Super Admin"],
       },
     ],
   },
   {
-    label: 'Người dùng',
+    label: "Người dùng",
     items: [
       {
-        title: 'Tài khoản',
-        href: '/users',
+        title: "Tài khoản",
+        href: "/users",
         icon: Users,
-        roles: USER_MANAGEMENT_ROLES,
+        roles: ["Super Admin"],
       },
     ],
   },
   {
-    label: 'Tài chính',
+    label: "Tài chính",
     items: [
       {
-        title: 'Giao dịch',
-        href: '/transactions',
+        title: "Giao dịch",
+        href: "/transactions",
         icon: Receipt,
-        roles: FINANCE_ROLES,
+        roles: ["Super Admin"],
       },
       {
-        title: 'Doanh thu & Payout',
-        href: '/billing',
+        title: "Doanh thu & Payout",
+        href: "/billing",
         icon: CreditCard,
-        roles: FINANCE_ROLES,
+        roles: ["Super Admin"],
       },
     ],
   },
   {
-    label: 'Hệ thống',
+    label: "Cá nhân",
     items: [
       {
-        title: 'Cài đặt',
-        href: '/settings',
+        title: "Hồ sơ cá nhân",
+        href: "/profile",
+        icon: User,
+        roles: ["Super Admin", "Instructor", "Support"],
+      },
+    ],
+  },
+  {
+    label: "Hệ thống",
+    items: [
+      {
+        title: "Cài đặt",
+        href: "/settings",
         icon: Settings,
-        roles: SYSTEM_CONFIG_ROLES,
+        roles: ["Super Admin"],
       },
     ],
   },

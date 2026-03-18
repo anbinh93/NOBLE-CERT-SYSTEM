@@ -53,7 +53,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/dashboard");
+      // Instructor → courses, Admin → dashboard
+      router.replace("/courses");
     }
   }, [isAuthenticated, router]);
 
@@ -103,7 +104,10 @@ export default function LoginPage() {
       );
 
       toast.success("Đăng nhập thành công");
-      router.push("/dashboard");
+      // Admin → dashboard, Instructor → courses
+      const redirectPath =
+        user.role === "SUPER_ADMIN" ? "/dashboard" : "/courses";
+      router.push(redirectPath);
     } catch {
       toast.error("Lỗi kết nối đến server");
     }

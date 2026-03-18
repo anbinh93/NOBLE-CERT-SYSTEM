@@ -1,9 +1,9 @@
-import { redirect } from 'next/navigation';
+import { redirect } from "next/navigation";
 
 /**
- * Root route: Redirect to dashboard. Auth guard is handled by
- * Next.js middleware and the (dashboard) layout.
+ * Root route: Redirect to login.
+ * Auth guard + role-based routing handled by login page.
  */
 export default function RootPage() {
-  redirect('/dashboard');
+  redirect("/login");
 }

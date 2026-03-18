@@ -3,15 +3,14 @@
 import { useAuth } from "@/hooks/use-auth";
 import { SidebarBrand } from "./sidebar-brand";
 import { SidebarNav } from "./sidebar-nav";
-import { NAV_GROUPS } from "./nav-config";
+import { NAV_GROUPS, filterNavGroups } from "./nav-config";
 
 export function Sidebar() {
   const { user } = useAuth();
 
   if (!user) return null;
 
-  // Tạm thời: cho tất cả role xem tất cả tab
-  const visibleGroups = NAV_GROUPS;
+  const visibleGroups = filterNavGroups(NAV_GROUPS, user.role);
 
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
