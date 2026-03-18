@@ -230,4 +230,43 @@ export class AuthService {
     await EmailService.sendVerificationEmail(email, user.name, verifyToken);
     return { message: "Đã gửi lại email xác thực!" };
   }
+
+  /**
+   * Change password — đổi mật khẩu (cần nhập mật khẩu cũ)
+   */
+  static async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    if (!currentPassword || !newPassword) {
+      throw new AppError(
+        "Vui lòng cung cấp mật khẩu hiện tại và mật khẩu mới!",
+        400,
+      );
+    }
+
+    if (newPassword.length < 6) {
+      throw new AppError("Mật khẩu mới phải có ít nhất 6 ký tự!", 400);
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new AppError("Không tìm thấy tài khoản!", 404);
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      throw new AppError("Mật khẩu hiện tại không chính xác!", 401);
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: "Đổi mật khẩu thành công!" };
+  }
 }

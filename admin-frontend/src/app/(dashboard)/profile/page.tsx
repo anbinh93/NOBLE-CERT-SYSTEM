@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Save, User } from "lucide-react";
+import { Loader2, Save, User, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { adminFetch } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
@@ -34,6 +34,12 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
 
   const [name, setName] = useState("");
+
+  // Change password states
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     adminFetch<{ user: ProfileData }>("/profile")
@@ -62,6 +68,60 @@ export default function ProfilePage() {
       toast.error(err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("Vui lòng điền đầy đủ các trường!");
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("Mật khẩu mới phải có ít nhất 6 ký tự!");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Mật khẩu mới không khớp!");
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      const API_BASE =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const token = (() => {
+        try {
+          const raw = localStorage.getItem("noble-cert-auth");
+          if (!raw) return null;
+          return JSON.parse(raw)?.state?.accessToken || null;
+        } catch {
+          return null;
+        }
+      })();
+
+      const res = await fetch(`${API_BASE}/api/v1/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json?.message || "Đổi mật khẩu thất bại");
+      }
+
+      toast.success("Đổi mật khẩu thành công!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -141,6 +201,65 @@ export default function ProfilePage() {
             <Button onClick={handleSave} disabled={saving}>
               <Save className="mr-2 h-4 w-4" />
               {saving ? "Đang lưu..." : "Lưu thay đổi"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Change Password */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 text-amber-600">
+              <Lock className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle>Đổi mật khẩu</CardTitle>
+              <CardDescription>
+                Cập nhật mật khẩu đăng nhập của bạn.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
+            <Input
+              id="currentPassword"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Nhập mật khẩu hiện tại..."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="newPassword">Mật khẩu mới</Label>
+            <Input
+              id="newPassword"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Tối thiểu 6 ký tự..."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Xác nhận mật khẩu mới</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Nhập lại mật khẩu mới..."
+            />
+          </div>
+          <div className="pt-2">
+            <Button
+              onClick={handleChangePassword}
+              disabled={changingPassword}
+              variant="outline"
+            >
+              <Lock className="mr-2 h-4 w-4" />
+              {changingPassword ? "Đang đổi..." : "Đổi mật khẩu"}
             </Button>
           </div>
         </CardContent>

@@ -18,8 +18,18 @@ export default function SettingsPage() {
   const [formData, setFormData] = useState({
     name: "",
     avatar: "",
-    bio: ""
+    bio: "",
   });
+
+  // Change password states
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
 
   // Dùng dữ liệu từ NextAuth session thay vì gọi endpoint không tồn tại
   useEffect(() => {
@@ -34,114 +44,294 @@ export default function SettingsPage() {
   }, [session]);
 
   const handleSave = async () => {
-      setIsSaving(true);
-      try {
-          // Cập nhật session local (name, image) — backend chưa có update-profile endpoint
-          await update({ name: formData.name, image: formData.avatar });
-          alert("Cập nhật thông tin thành công!");
-      } catch (e) {
-          console.error(e);
-          alert("Cập nhật thất bại, vui lòng thử lại.");
-      } finally {
-          setIsSaving(false);
-      }
+    setIsSaving(true);
+    try {
+      // Cập nhật session local (name, image) — backend chưa có update-profile endpoint
+      await update({ name: formData.name, image: formData.avatar });
+      alert("Cập nhật thông tin thành công!");
+    } catch (e) {
+      console.error(e);
+      alert("Cập nhật thất bại, vui lòng thử lại.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  if (isLoading) return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div>;
+  const handleChangePassword = async () => {
+    setPasswordError("");
+    setPasswordSuccess("");
+
+    if (
+      !passwordData.currentPassword ||
+      !passwordData.newPassword ||
+      !passwordData.confirmPassword
+    ) {
+      setPasswordError("Vui lòng điền đầy đủ các trường!");
+      return;
+    }
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError("Mật khẩu mới phải có ít nhất 6 ký tự!");
+      return;
+    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError("Mật khẩu mới không khớp!");
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const apiBase =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const token = (session as any)?.user?.accessToken;
+
+      const res = await fetch(`${apiBase}/api/v1/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json?.message || "Đổi mật khẩu thất bại");
+      }
+
+      setPasswordSuccess("Đổi mật khẩu thành công!");
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (err: any) {
+      setPasswordError(err.message);
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  if (isLoading)
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
 
   return (
     <div className="space-y-8 pb-20 max-w-4xl mx-auto">
       <div>
-         <h1 className="text-2xl font-bold text-foreground">Cài đặt</h1>
-         <p className="text-muted-foreground mt-1">Quản lý tùy chọn tài khoản và thông tin cá nhân của bạn.</p>
+        <h1 className="text-2xl font-bold text-foreground">Cài đặt</h1>
+        <p className="text-muted-foreground mt-1">
+          Quản lý tùy chọn tài khoản và thông tin cá nhân của bạn.
+        </p>
       </div>
 
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="bg-card p-1 rounded-full border border-border w-full md:w-auto inline-flex h-auto">
-           <TabsTrigger value="general" className="rounded-full px-6 py-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">Chung</TabsTrigger>
-           <TabsTrigger value="security" className="rounded-full px-6 py-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">Bảo mật</TabsTrigger>
-           <TabsTrigger value="notifications" className="rounded-full px-6 py-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">Thông báo</TabsTrigger>
+          <TabsTrigger
+            value="general"
+            className="rounded-full px-6 py-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+          >
+            Chung
+          </TabsTrigger>
+          <TabsTrigger
+            value="security"
+            className="rounded-full px-6 py-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+          >
+            Bảo mật
+          </TabsTrigger>
+          <TabsTrigger
+            value="notifications"
+            className="rounded-full px-6 py-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
+          >
+            Thông báo
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="mt-8 space-y-6">
-            {/* Profile Card */}
-            <div className="bg-card rounded-[24px] p-8 shadow-sm border border-border">
-                <h2 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
-                    <User className="h-5 w-5 text-primary" /> Thông tin cá nhân
-                </h2>
+          {/* Profile Card */}
+          <div className="bg-card rounded-[24px] p-8 shadow-sm border border-border">
+            <h2 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
+              <User className="h-5 w-5 text-primary" /> Thông tin cá nhân
+            </h2>
 
-                <div className="flex flex-col md:flex-row gap-8 items-start">
-                    {/* Avatar Section */}
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="relative h-24 w-24 rounded-full overflow-hidden bg-muted border-2 border-muted shadow-inner">
-                            {formData.avatar ? (
-                                <Image src={formData.avatar} alt="Avatar" fill className="object-cover" />
-                            ) : (
-                                <div className="h-full w-full flex items-center justify-center text-muted-foreground">
-                                    <User className="h-10 w-10" />
-                                </div>
-                            )}
-                        </div>
-                        <Button variant="outline" size="sm" className="rounded-full text-xs" onClick={() => {
-                            const url = prompt("Nhập đường dẫn ảnh (ví dụ từ Google hoặc Facebook):", formData.avatar);
-                            if (url !== null) setFormData({...formData, avatar: url});
-                        }}>
-                            <Camera className="h-3 w-3 mr-2" /> Đổi ảnh
-                        </Button>
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+              {/* Avatar Section */}
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative h-24 w-24 rounded-full overflow-hidden bg-muted border-2 border-muted shadow-inner">
+                  {formData.avatar ? (
+                    <Image
+                      src={formData.avatar}
+                      alt="Avatar"
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-muted-foreground">
+                      <User className="h-10 w-10" />
                     </div>
-
-                    {/* Form Section */}
-                    <div className="flex-1 w-full space-y-5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Họ và Tên</Label>
-                                <Input 
-                                    id="name" 
-                                    value={formData.name} 
-                                    onChange={(e) => setFormData({...formData, name: e.target.value})} 
-                                    className="rounded-xl border-input focus:ring-primary/20"
-                                    placeholder="Nhập họ tên của bạn"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Địa chỉ Email</Label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                                    <Input 
-                                        id="email" 
-                                        value={email || ""} 
-                                        disabled 
-                                        className="pl-9 rounded-xl border-input bg-muted text-muted-foreground cursor-not-allowed"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="pt-4 flex justify-end">
-                            <Button onClick={handleSave} disabled={isSaving} className="rounded-full bg-primary hover:bg-primary/90 px-8 text-white font-bold">
-                                {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                                Lưu thay đổi
-                            </Button>
-                        </div>
-                    </div>
+                  )}
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full text-xs"
+                  onClick={() => {
+                    const url = prompt(
+                      "Nhập đường dẫn ảnh (ví dụ từ Google hoặc Facebook):",
+                      formData.avatar,
+                    );
+                    if (url !== null) setFormData({ ...formData, avatar: url });
+                  }}
+                >
+                  <Camera className="h-3 w-3 mr-2" /> Đổi ảnh
+                </Button>
+              </div>
+
+              {/* Form Section */}
+              <div className="flex-1 w-full space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Họ và Tên</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      className="rounded-xl border-input focus:ring-primary/20"
+                      placeholder="Nhập họ tên của bạn"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Địa chỉ Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                      <Input
+                        id="email"
+                        value={email || ""}
+                        disabled
+                        className="pl-9 rounded-xl border-input bg-muted text-muted-foreground cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 flex justify-end">
+                  <Button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="rounded-full bg-primary hover:bg-primary/90 px-8 text-white font-bold"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Lưu thay đổi
+                  </Button>
+                </div>
+              </div>
             </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="security" className="mt-8">
-            <div className="bg-card rounded-[24px] p-8 shadow-sm border border-border text-center py-16">
-                 <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                 <h3 className="text-lg font-semibold text-foreground">Cài đặt bảo mật</h3>
-                 <p className="text-muted-foreground mt-2">Tính năng đổi mật khẩu và bảo mật 2 lớp đang được phát triển.</p>
+          <div className="bg-card rounded-[24px] p-8 shadow-sm border border-border">
+            <h2 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" /> Đổi mật khẩu
+            </h2>
+
+            <div className="space-y-5 max-w-md">
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={passwordData.currentPassword}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      currentPassword: e.target.value,
+                    })
+                  }
+                  className="rounded-xl border-input focus:ring-primary/20"
+                  placeholder="Nhập mật khẩu hiện tại"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">Mật khẩu mới</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      newPassword: e.target.value,
+                    })
+                  }
+                  className="rounded-xl border-input focus:ring-primary/20"
+                  placeholder="Tối thiểu 6 ký tự"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Xác nhận mật khẩu mới</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                  className="rounded-xl border-input focus:ring-primary/20"
+                  placeholder="Nhập lại mật khẩu mới"
+                />
+              </div>
+
+              {passwordError && (
+                <p className="text-sm text-destructive">{passwordError}</p>
+              )}
+              {passwordSuccess && (
+                <p className="text-sm text-green-600">{passwordSuccess}</p>
+              )}
+
+              <div className="pt-2">
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={isChangingPassword}
+                  className="rounded-full bg-primary hover:bg-primary/90 px-8 text-white font-bold"
+                >
+                  {isChangingPassword ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Shield className="h-4 w-4 mr-2" />
+                  )}
+                  Đổi mật khẩu
+                </Button>
+              </div>
             </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="notifications" className="mt-8">
-            <div className="bg-card rounded-[24px] p-8 shadow-sm border border-border text-center py-16">
-                 <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                 <h3 className="text-lg font-semibold text-foreground">Tùy chọn thông báo</h3>
-                 <p className="text-muted-foreground mt-2">Quản lý cách chúng tôi gửi thông báo cho bạn.</p>
-            </div>
+          <div className="bg-card rounded-[24px] p-8 shadow-sm border border-border text-center py-16">
+            <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground">
+              Tùy chọn thông báo
+            </h3>
+            <p className="text-muted-foreground mt-2">
+              Quản lý cách chúng tôi gửi thông báo cho bạn.
+            </p>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

@@ -39,12 +39,10 @@ export const googleSync = catchAsync(async (req: Request, res: Response) => {
 export const refresh = catchAsync(async (req: Request, res: Response) => {
   const refreshToken = req.cookies.jwt_refresh;
   if (!refreshToken) {
-    return res
-      .status(401)
-      .json({
-        status: "fail",
-        message: "Bạn chưa đăng nhập. Vui lòng đăng nhập lại!",
-      });
+    return res.status(401).json({
+      status: "fail",
+      message: "Bạn chưa đăng nhập. Vui lòng đăng nhập lại!",
+    });
   }
   const { accessToken } = await AuthService.refresh(refreshToken);
   sendSuccess(res, 200, { accessToken }, "Refresh token thành công!");
@@ -61,5 +59,17 @@ export const resendVerification = catchAsync(
     const { email } = req.body;
     const result = await AuthService.resendVerification(email);
     sendSuccess(res, 200, result);
+  },
+);
+
+export const changePassword = catchAsync(
+  async (req: Request, res: Response) => {
+    const { currentPassword, newPassword } = req.body;
+    const result = await AuthService.changePassword(
+      req.user.id,
+      currentPassword,
+      newPassword,
+    );
+    sendSuccess(res, 200, result, "Đổi mật khẩu thành công!");
   },
 );
