@@ -1,0 +1,3 @@
+instructor@noblecert.com	 admin123
+student@example.com	       student123
+admin@noble-cert.com       admin123
