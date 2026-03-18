@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useAuthStore } from '@/store/auth.store';
+import { useAuthStore } from "@/store/auth.store";
 import {
   COURSE_ROLES,
   FINANCE_ROLES,
@@ -8,14 +8,14 @@ import {
   SYSTEM_CONFIG_ROLES,
   USER_MANAGEMENT_ROLES,
   type Role,
-} from '@/types/auth';
+} from "@/types/auth";
 
 /**
  * Hook tập trung cho Auth state và kiểm tra quyền theo RBAC.
  * Encapsulates business logic tránh lặp lại role-check ở components.
  */
 export function useAuth() {
-  const { user, isAuthenticated, login, logout } = useAuthStore();
+  const { user, accessToken, isAuthenticated, login, logout } = useAuthStore();
 
   const hasRole = (roles: Role[]): boolean => {
     if (!user) return false;
@@ -24,6 +24,7 @@ export function useAuth() {
 
   return {
     user,
+    accessToken,
     isAuthenticated,
     login,
     logout,

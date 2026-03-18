@@ -1,23 +1,25 @@
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-import { ThemeProvider } from 'next-themes';
-import './globals.css';
-import ReactQueryProvider from '@/providers/react-query-provider';
-import { Toaster } from '@/components/ui/sonner';
+import type { Metadata } from "next";
+import { Be_Vietnam_Pro, Merriweather } from "next/font/google";
+import { ThemeProvider } from "next-themes";
+import "./globals.css";
+import ReactQueryProvider from "@/providers/react-query-provider";
+import { Toaster } from "@/components/ui/sonner";
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ["vietnamese", "latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-sans",
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
+const merriweather = Merriweather({
+  subsets: ["vietnamese", "latin"],
+  weight: ["300", "400", "700", "900"],
+  variable: "--font-serif",
 });
 
 export const metadata: Metadata = {
-  title: 'Noble-Cert Admin Control Center',
-  description: 'Dashboard quản trị tốc độ cao, xử lý dữ liệu tài chính và cấu hình khoá học',
+  title: "Noble-Cert Admin",
+  description: "Trung tâm quản trị hệ thống Noble-Cert",
 };
 
 export default function RootLayout({
@@ -27,8 +29,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <body
+        className={`${beVietnamPro.variable} ${merriweather.variable} font-sans min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary`}
+        suppressHydrationWarning
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
           <ReactQueryProvider>
             {children}
             <Toaster richColors position="top-right" />

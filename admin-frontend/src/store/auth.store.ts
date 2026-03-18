@@ -1,14 +1,15 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { type AuthUser, type Role } from '@/types/auth';
-import { createAuthStorage } from '@/lib/auth-storage';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { type AuthUser, type Role } from "@/types/auth";
+import { createAuthStorage } from "@/lib/auth-storage";
 
 export type { Role, AuthUser as User };
 
 interface AuthState {
   user: AuthUser | null;
+  accessToken: string | null;
   isAuthenticated: boolean;
-  login: (user: AuthUser) => void;
+  login: (user: AuthUser, accessToken: string) => void;
   logout: () => void;
 }
 
@@ -16,13 +17,16 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      accessToken: null,
       isAuthenticated: false,
-      login: (user) => set({ user, isAuthenticated: true }),
-      logout: () => set({ user: null, isAuthenticated: false }),
+      login: (user, accessToken) =>
+        set({ user, accessToken, isAuthenticated: true }),
+      logout: () =>
+        set({ user: null, accessToken: null, isAuthenticated: false }),
     }),
     {
-      name: 'noble-cert-auth',
+      name: "noble-cert-auth",
       storage: createAuthStorage<AuthState>(),
-    }
-  )
+    },
+  ),
 );

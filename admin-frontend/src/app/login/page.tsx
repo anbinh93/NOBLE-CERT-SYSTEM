@@ -1,16 +1,15 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { toast } from 'sonner';
-import { Loader2, ShieldCheck } from 'lucide-react';
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+import { Loader2, ShieldCheck } from "lucide-react";
 
-import { useAuth } from '@/hooks/use-auth';
-import { type Role } from '@/types/auth';
-import { Button } from '@/components/ui/button';
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -18,7 +17,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -26,25 +25,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const loginSchema = z.object({
-  email: z.string().email('Email không hợp lệ'),
-  password: z.string().min(6, 'Mật khẩu tối thiểu 6 ký tự'),
-  role: z.enum(['Super Admin', 'Instructor', 'Support'] as const),
+  email: z.string().email("Email không hợp lệ"),
+  password: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
-
-const MOCK_DELAY_MS = 800;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -53,9 +44,8 @@ export default function LoginPage() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
-      password: '',
-      role: 'Super Admin',
+      email: "",
+      password: "",
     },
   });
 
@@ -63,36 +53,75 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace('/dashboard');
+      router.replace("/dashboard");
     }
   }, [isAuthenticated, router]);
 
   const onSubmit = async (values: LoginFormValues) => {
-    await new Promise((resolve) => setTimeout(resolve, MOCK_DELAY_MS));
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+        credentials: "include",
+      });
 
-    const userId = `user-${values.email.replace(/[^a-z0-9]/gi, '-')}`;
+      const json = await res.json();
 
-    login({
-      id: userId,
-      name: values.email.split('@')[0],
-      email: values.email,
-      role: values.role as Role,
-      avatar: '',
-    });
+      if (!res.ok) {
+        toast.error(json?.message || "Đăng nhập thất bại");
+        return;
+      }
 
-    toast.success(`Đăng nhập thành công với vai trò ${values.role}`);
-    router.push('/dashboard');
+      const data = json?.data ?? json;
+      const user = data.user;
+      const accessToken = data.accessToken;
+
+      // Check admin role
+      const adminRoles = ["SUPER_ADMIN", "INSTRUCTOR", "STAFF"];
+      if (!adminRoles.includes(user.role)) {
+        toast.error("Tài khoản không có quyền truy cập trang quản trị");
+        return;
+      }
+
+      // Map backend role to admin display role
+      const roleMap: Record<string, string> = {
+        SUPER_ADMIN: "Super Admin",
+        INSTRUCTOR: "Instructor",
+        STAFF: "Support",
+      };
+
+      login(
+        {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: (roleMap[user.role] || user.role) as any,
+          avatar: "",
+        },
+        accessToken,
+      );
+
+      toast.success("Đăng nhập thành công");
+      router.push("/dashboard");
+    } catch {
+      toast.error("Lỗi kết nối đến server");
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md space-y-6">
         <div className="flex flex-col items-center gap-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
             <ShieldCheck className="h-7 w-7" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Noble-Cert Admin</h1>
-          <p className="text-sm text-slate-500">Trung tâm quản trị hệ thống</p>
+          <h1 className="text-2xl font-bold text-foreground">
+            Noble-Cert Admin
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Trung tâm quản trị hệ thống
+          </p>
         </div>
 
         <Card>
@@ -115,7 +144,7 @@ export default function LoginPage() {
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="admin@noble-cert.com"
+                          placeholder="instructor@noblecert.com"
                           autoComplete="email"
                           {...field}
                         />
@@ -143,55 +172,25 @@ export default function LoginPage() {
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Mock Role{' '}
-                        <span className="text-xs font-normal text-muted-foreground">
-                          (chỉ dùng cho development)
-                        </span>
-                      </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn vai trò" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Super Admin">
-                            Super Admin — Toàn quyền
-                          </SelectItem>
-                          <SelectItem value="Instructor">
-                            Instructor — Quản lý khoá học
-                          </SelectItem>
-                          <SelectItem value="Support">
-                            Support — Hỗ trợ kỹ thuật
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </CardContent>
 
               <CardFooter className="flex flex-col gap-3 pt-2">
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Đang xác thực...
                     </>
                   ) : (
-                    'Đăng nhập'
+                    "Đăng nhập"
                   )}
                 </Button>
-                <p className="text-xs text-center text-slate-500">
-                  Quên mật khẩu? Liên hệ Super Admin để đặt lại.
+                <p className="text-xs text-center text-muted-foreground">
+                  Sử dụng tài khoản Instructor hoặc Super Admin để đăng nhập.
                 </p>
               </CardFooter>
             </form>
