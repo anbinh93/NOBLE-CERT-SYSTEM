@@ -4,6 +4,9 @@ import {
   getStats,
   getRecentOrders,
   getUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
   getCourses,
   getOrders,
   createCourse,
@@ -28,6 +31,9 @@ router.get("/orders/recent", getRecentOrders);
 
 // Users
 router.get("/users", getUsers);
+router.get("/users/:id", getUserById);
+router.put("/users/:id", updateUser);
+router.delete("/users/:id", deleteUser);
 
 // Courses
 router.get("/courses", getCourses);

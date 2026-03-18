@@ -87,6 +87,118 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// ─── Get User By Id ──────────────────────────────────────────────────
+export const getUserById = catchAsync(async (req: Request, res: Response) => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.params.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isActive: true,
+      createdAt: true,
+      updatedAt: true,
+      _count: { select: { enrollments: true, courses: true, orders: true } },
+    },
+  });
+
+  if (!user) {
+    return res
+      .status(404)
+      .json({ status: "fail", message: "Không tìm thấy người dùng" });
+  }
+
+  // Role-specific stats
+  let stats: any = {};
+
+  if (user.role === "STUDENT") {
+    const [totalPaid, enrollments] = await Promise.all([
+      prisma.order.aggregate({
+        where: { userId: user.id, status: "SUCCESS" },
+        _sum: { amount: true },
+      }),
+      prisma.enrollment.count({
+        where: { userId: user.id },
+      }),
+    ]);
+    stats = {
+      coursesEnrolled: enrollments,
+      totalPaid: totalPaid._sum.amount || 0,
+      ordersCount: user._count.orders,
+    };
+  }
+
+  if (user.role === "INSTRUCTOR") {
+    const courses = await prisma.course.findMany({
+      where: { instructorId: user.id },
+      select: { id: true, title: true, status: true },
+      orderBy: { createdAt: "desc" },
+    });
+    stats = {
+      coursesAssigned: courses.length,
+      courses,
+    };
+  }
+
+  sendSuccess(res, 200, { user, stats });
+});
+
+// ─── Update User ─────────────────────────────────────────────────────
+export const updateUser = catchAsync(async (req: Request, res: Response) => {
+  const { name, isActive } = req.body;
+
+  const existing = await prisma.user.findUnique({
+    where: { id: req.params.id },
+  });
+  if (!existing) {
+    return res
+      .status(404)
+      .json({ status: "fail", message: "Không tìm thấy người dùng" });
+  }
+
+  const data: any = {};
+  if (name !== undefined) data.name = name.trim();
+  if (isActive !== undefined) data.isActive = Boolean(isActive);
+
+  const user = await prisma.user.update({
+    where: { id: req.params.id },
+    data,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isActive: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  sendSuccess(res, 200, { user }, "Cập nhật người dùng thành công!");
+});
+
+// ─── Delete User ─────────────────────────────────────────────────────
+export const deleteUser = catchAsync(async (req: Request, res: Response) => {
+  const user = await prisma.user.findUnique({ where: { id: req.params.id } });
+  if (!user) {
+    return res
+      .status(404)
+      .json({ status: "fail", message: "Không tìm thấy người dùng" });
+  }
+  if (user.role === "SUPER_ADMIN") {
+    return res
+      .status(403)
+      .json({
+        status: "fail",
+        message: "Không thể xoá tài khoản Super Admin!",
+      });
+  }
+
+  await prisma.user.delete({ where: { id: req.params.id } });
+  sendSuccess(res, 200, null, "Đã xoá người dùng!");
+});
+
 // ─── Courses List ────────────────────────────────────────────────────
 export const getCourses = catchAsync(async (req: Request, res: Response) => {
   const page = Math.max(1, Number(req.query.page) || 1);

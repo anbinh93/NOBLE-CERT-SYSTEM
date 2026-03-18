@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -44,6 +45,7 @@ const roleMap: Record<
 };
 
 export default function UsersPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -153,7 +155,11 @@ export default function UsersPage() {
                       variant: "secondary" as const,
                     };
                     return (
-                      <TableRow key={user.id}>
+                      <TableRow
+                        key={user.id}
+                        className="cursor-pointer hover:bg-accent/50"
+                        onClick={() => router.push(`/users/${user.id}`)}
+                      >
                         <TableCell className="font-medium">
                           {user.name}
                         </TableCell>
