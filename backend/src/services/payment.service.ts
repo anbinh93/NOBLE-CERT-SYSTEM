@@ -1,10 +1,14 @@
-import { Prisma, OrderStatus } from '@prisma/client';
-import PayOS from '@payos/node';
-import { AppError } from '../utils/AppError';
-import { prisma } from '../config/database.config';
-import { env } from '../config/env.config';
+import { Prisma, OrderStatus } from "@prisma/client";
+import PayOS from "@payos/node";
+import { AppError } from "../utils/AppError";
+import { prisma } from "../config/database.config";
+import { env } from "../config/env.config";
 
-const payos = new PayOS(env.PAYOS_CLIENT_ID, env.PAYOS_API_KEY, env.PAYOS_CHECKSUM_KEY);
+const payos = new PayOS(
+  env.PAYOS_CLIENT_ID,
+  env.PAYOS_API_KEY,
+  env.PAYOS_CHECKSUM_KEY,
+);
 
 /** Thời gian hết hạn link thanh toán (15 phút) */
 const PAYMENT_LINK_TTL_MS = 15 * 60 * 1000;
@@ -14,6 +18,8 @@ interface CreatePaymentLinkResult {
   message: string;
   orderId?: string;
   qrCode?: string;
+  orderCode?: number;
+  amount?: number;
 }
 
 interface WebhookResult {
@@ -23,7 +29,7 @@ interface WebhookResult {
 /** Sinh mã orderCode duy nhất cho PayOS (6 chữ số timestamp + 3 random) */
 function generateOrderCode(): number {
   const timePart = String(Date.now()).slice(-6);
-  const randomPart = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+  const randomPart = String(Math.floor(Math.random() * 1000)).padStart(3, "0");
   return Number(timePart + randomPart);
 }
 
@@ -32,10 +38,13 @@ export class PaymentService {
    * Khởi tạo đơn hàng + tạo PayOS payment link.
    * Xử lý auto-enroll nếu khoá học miễn phí.
    */
-  static async createPaymentLink(userId: string, courseId: string): Promise<CreatePaymentLinkResult> {
+  static async createPaymentLink(
+    userId: string,
+    courseId: string,
+  ): Promise<CreatePaymentLinkResult> {
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) {
-      throw new AppError('Không tìm thấy khóa học', 404);
+      throw new AppError("Không tìm thấy khóa học", 404);
     }
 
     await this.assertNotEnrolled(userId, courseId);
@@ -50,18 +59,24 @@ export class PaymentService {
   /**
    * Khởi tạo đơn hàng thanh toán phí cấp chứng chỉ.
    */
-  static async createCertificatePaymentLink(userId: string, courseId: string): Promise<CreatePaymentLinkResult> {
+  static async createCertificatePaymentLink(
+    userId: string,
+    courseId: string,
+  ): Promise<CreatePaymentLinkResult> {
     const course = await prisma.course.findUnique({ where: { id: courseId } });
     if (!course) {
-      throw new AppError('Không tìm thấy khóa học', 404);
+      throw new AppError("Không tìm thấy khóa học", 404);
     }
 
     const enrollment = await prisma.enrollment.findFirst({
-      where: { userId, courseId, status: 'PENDING_PAYMENT' }
+      where: { userId, courseId, status: "PENDING_PAYMENT" },
     });
 
     if (!enrollment) {
-      throw new AppError('Bạn chưa đủ điều kiện nhận chứng chỉ hoặc đã nhận rồi.', 400);
+      throw new AppError(
+        "Bạn chưa đủ điều kiện nhận chứng chỉ hoặc đã nhận rồi.",
+        400,
+      );
     }
 
     const orderCode = generateOrderCode();
@@ -99,7 +114,9 @@ export class PaymentService {
     return {
       checkoutUrl: paymentLinkResponse.checkoutUrl,
       qrCode: paymentLinkResponse.qrCode,
-      message: 'Tạo link thanh toán phí chứng chỉ thành công',
+      orderCode,
+      amount,
+      message: "Tạo link thanh toán phí chứng chỉ thành công",
       orderId: order.id,
     };
   }
@@ -107,11 +124,15 @@ export class PaymentService {
   /**
    * Xử lý webhook từ PayOS: verify signature → idempotent update → auto-enroll.
    */
-  static async handleWebhook(webhookBody: Record<string, unknown>): Promise<WebhookResult> {
+  static async handleWebhook(
+    webhookBody: Record<string, unknown>,
+  ): Promise<WebhookResult> {
     const webhookData = this.verifyWebhookSignature(webhookBody);
 
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const order = await tx.order.findUnique({ where: { orderCode: Number(webhookData.orderCode) } });
+      const order = await tx.order.findUnique({
+        where: { orderCode: Number(webhookData.orderCode) },
+      });
       if (!order || order.status !== OrderStatus.PENDING) return;
 
       if (order.amount !== webhookData.amount) {
@@ -122,7 +143,8 @@ export class PaymentService {
         return;
       }
 
-      const isSuccess = webhookData.code === '00' || (webhookBody.success === true);
+      const isSuccess =
+        webhookData.code === "00" || webhookBody.success === true;
       if (!isSuccess) return;
 
       await tx.order.update({
@@ -130,14 +152,22 @@ export class PaymentService {
         data: { status: OrderStatus.SUCCESS },
       });
 
-      if (order.memo.startsWith('CERT')) {
+      if (order.memo.startsWith("CERT")) {
         await tx.enrollment.updateMany({
-          where: { userId: order.userId, courseId: order.courseId, status: 'PENDING_PAYMENT' },
-          data: { status: 'COMPLETED' },
+          where: {
+            userId: order.userId,
+            courseId: order.courseId,
+            status: "PENDING_PAYMENT",
+          },
+          data: { status: "COMPLETED" },
         });
       } else {
         await tx.enrollment.create({
-          data: { userId: order.userId, courseId: order.courseId, status: 'ACTIVE' },
+          data: {
+            userId: order.userId,
+            courseId: order.courseId,
+            status: "ACTIVE",
+          },
         });
       }
     });
@@ -156,43 +186,56 @@ export class PaymentService {
       const paymentLinkData = await payos.getPaymentLinkInformation(orderCode);
       if (!paymentLinkData) return;
 
-      if (paymentLinkData.status === 'PAID') {
+      if (paymentLinkData.status === "PAID") {
         await prisma.$transaction(async (tx) => {
           await tx.order.update({
             where: { id: order.id },
             data: { status: OrderStatus.SUCCESS },
           });
 
-          if (order.memo.startsWith('CERT')) {
+          if (order.memo.startsWith("CERT")) {
             await tx.enrollment.updateMany({
-              where: { userId: order.userId, courseId: order.courseId, status: 'PENDING_PAYMENT' },
-              data: { status: 'COMPLETED' },
+              where: {
+                userId: order.userId,
+                courseId: order.courseId,
+                status: "PENDING_PAYMENT",
+              },
+              data: { status: "COMPLETED" },
             });
           } else {
             await tx.enrollment.create({
-              data: { userId: order.userId, courseId: order.courseId, status: 'ACTIVE' },
+              data: {
+                userId: order.userId,
+                courseId: order.courseId,
+                status: "ACTIVE",
+              },
             });
           }
         });
-      } else if (paymentLinkData.status === 'CANCELLED') {
+      } else if (paymentLinkData.status === "CANCELLED") {
         await prisma.order.update({
           where: { id: order.id },
           data: { status: OrderStatus.CANCELLED },
         });
       }
     } catch (error) {
-      console.warn(`[PayOS] Bỏ qua sync thủ công cho ${orderCode} (Có thể chưa thanh toán):`);
+      console.warn(
+        `[PayOS] Bỏ qua sync thủ công cho ${orderCode} (Có thể chưa thanh toán):`,
+      );
     }
   }
 
   // ─── Private helpers ────────────────────────────────────────────────
 
-  private static async assertNotEnrolled(userId: string, courseId: string): Promise<void> {
+  private static async assertNotEnrolled(
+    userId: string,
+    courseId: string,
+  ): Promise<void> {
     const existing = await prisma.enrollment.findFirst({
-      where: { userId, courseId, status: 'ACTIVE' },
+      where: { userId, courseId, status: "ACTIVE" },
     });
     if (existing) {
-      throw new AppError('Bạn đã sở hữu khóa học này rồi', 400);
+      throw new AppError("Bạn đã sở hữu khóa học này rồi", 400);
     }
   }
 
@@ -201,9 +244,12 @@ export class PaymentService {
     courseId: string,
   ): Promise<CreatePaymentLinkResult> {
     await prisma.enrollment.create({
-      data: { userId, courseId, status: 'ACTIVE' },
+      data: { userId, courseId, status: "ACTIVE" },
     });
-    return { checkoutUrl: null, message: 'Đăng ký thành công khóa học miễn phí' };
+    return {
+      checkoutUrl: null,
+      message: "Đăng ký thành công khóa học miễn phí",
+    };
   }
 
   private static async handlePaidOrder(
@@ -245,7 +291,7 @@ export class PaymentService {
 
     return {
       checkoutUrl: paymentLinkResponse.checkoutUrl,
-      message: 'Tạo link thanh toán thành công',
+      message: "Tạo link thanh toán thành công",
       orderId: order.id,
     };
   }
@@ -260,8 +306,8 @@ export class PaymentService {
     try {
       return await payos.createPaymentLink(body);
     } catch (error) {
-      console.error('[PayOS] createPaymentLink failed:', error);
-      throw new AppError('Lỗi kết nối đến cổng thanh toán PayOS', 502);
+      console.error("[PayOS] createPaymentLink failed:", error);
+      throw new AppError("Lỗi kết nối đến cổng thanh toán PayOS", 502);
     }
   }
 
@@ -270,7 +316,10 @@ export class PaymentService {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return payos.verifyPaymentWebhookData(body as any);
     } catch {
-      throw new AppError('Chữ ký webhook không hợp lệ (Invalid Signature)', 400);
+      throw new AppError(
+        "Chữ ký webhook không hợp lệ (Invalid Signature)",
+        400,
+      );
     }
   }
 }
