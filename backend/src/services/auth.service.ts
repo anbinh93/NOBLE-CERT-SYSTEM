@@ -269,4 +269,82 @@ export class AuthService {
 
     return { message: "Đổi mật khẩu thành công!" };
   }
+
+  /**
+   * Forgot password — gửi email chứa link đặt lại mật khẩu
+   */
+  static async forgotPassword(email: string) {
+    if (!email) {
+      throw new AppError("Vui lòng cung cấp email!", 400);
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      // Không tiết lộ user có tồn tại hay không
+      return {
+        message:
+          "Nếu email tồn tại trong hệ thống, bạn sẽ nhận được email đặt lại mật khẩu.",
+      };
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 giờ
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { resetToken, resetTokenExpires },
+    });
+
+    await EmailService.sendResetPasswordEmail(
+      email,
+      user.name,
+      resetToken,
+      user.role,
+    );
+
+    return {
+      message:
+        "Nếu email tồn tại trong hệ thống, bạn sẽ nhận được email đặt lại mật khẩu.",
+    };
+  }
+
+  /**
+   * Reset password — đặt lại mật khẩu bằng token
+   */
+  static async resetPassword(token: string, newPassword: string) {
+    if (!token || !newPassword) {
+      throw new AppError("Token và mật khẩu mới là bắt buộc!", 400);
+    }
+
+    if (newPassword.length < 6) {
+      throw new AppError("Mật khẩu mới phải có ít nhất 6 ký tự!", 400);
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        resetToken: token,
+        resetTokenExpires: { gte: new Date() },
+      },
+    });
+
+    if (!user) {
+      throw new AppError(
+        "Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn!",
+        400,
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetToken: null,
+        resetTokenExpires: null,
+      },
+    });
+
+    return { message: "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập." };
+  }
 }

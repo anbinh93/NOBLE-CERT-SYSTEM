@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -196,6 +197,12 @@ export default function LoginPage() {
                 <p className="text-xs text-center text-muted-foreground">
                   Sử dụng tài khoản Instructor hoặc Super Admin để đăng nhập.
                 </p>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-center text-primary hover:underline font-medium"
+                >
+                  Quên mật khẩu?
+                </Link>
               </CardFooter>
             </form>
           </Form>

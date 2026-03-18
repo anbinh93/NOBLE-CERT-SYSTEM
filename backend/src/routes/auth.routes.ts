@@ -7,6 +7,8 @@ import {
   verifyEmail,
   resendVerification,
   changePassword,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/auth.controller";
 import { protect } from "../middlewares/auth.middleware";
 
@@ -19,5 +21,7 @@ router.post("/google-sync", googleSync);
 router.get("/verify-email", verifyEmail);
 router.post("/resend-verification", resendVerification);
 router.post("/change-password", protect, changePassword);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
 
 export default router;

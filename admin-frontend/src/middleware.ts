@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_ROUTES = ["/login"];
+const PUBLIC_ROUTES = ["/login", "/forgot-password", "/reset-password"];
 
 /**
  * Edge Middleware: Kiểm tra auth token trước khi cho phép truy cập.

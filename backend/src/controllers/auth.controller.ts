@@ -73,3 +73,17 @@ export const changePassword = catchAsync(
     sendSuccess(res, 200, result, "Đổi mật khẩu thành công!");
   },
 );
+
+export const forgotPassword = catchAsync(
+  async (req: Request, res: Response) => {
+    const { email } = req.body;
+    const result = await AuthService.forgotPassword(email);
+    sendSuccess(res, 200, result);
+  },
+);
+
+export const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  const { token, newPassword } = req.body;
+  const result = await AuthService.resetPassword(token, newPassword);
+  sendSuccess(res, 200, result);
+});

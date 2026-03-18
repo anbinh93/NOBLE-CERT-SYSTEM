@@ -40,6 +40,8 @@ model User {
   isEmailVerified    Boolean   @default(false)
   verifyToken        String?
   verifyTokenExpires DateTime?
+  resetToken         String?
+  resetTokenExpires  DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
