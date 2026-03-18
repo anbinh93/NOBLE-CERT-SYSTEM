@@ -20,6 +20,11 @@ import {
   updateProfile,
   getCertificates,
   revokeCertificate,
+  createInstructor,
+  getSystemSettings,
+  updateSystemSettings,
+  sendTestEmail,
+  resendVerificationByAdmin,
 } from "../controllers/admin.controller";
 
 const router = Router();
@@ -36,6 +41,7 @@ router.get("/users", getUsers);
 router.get("/users/:id", getUserById);
 router.put("/users/:id", updateUser);
 router.delete("/users/:id", deleteUser);
+router.post("/users/resend-verification", resendVerificationByAdmin);
 
 // Courses
 router.get("/courses", getCourses);
@@ -46,8 +52,9 @@ router.delete("/courses/:id", deleteCourse);
 router.patch("/courses/:id/publish", publishCourse);
 router.patch("/courses/:id/archive", archiveCourse);
 
-// Instructors (dropdown)
+// Instructors
 router.get("/instructors", getInstructors);
+router.post("/instructors", createInstructor);
 
 // Orders
 router.get("/orders", getOrders);
@@ -55,6 +62,11 @@ router.get("/orders", getOrders);
 // Certificates
 router.get("/certificates", getCertificates);
 router.patch("/certificates/:id/revoke", revokeCertificate);
+
+// System Settings
+router.get("/settings", getSystemSettings);
+router.put("/settings", updateSystemSettings);
+router.post("/settings/test-email", sendTestEmail);
 
 // Profile
 router.get("/profile", getMyProfile);

@@ -11,12 +11,13 @@ async function main() {
   const adminPassword = await bcrypt.hash("admin123", 12);
   const superAdmin = await prisma.user.upsert({
     where: { email: "admin@noblecert.com" },
-    update: {},
+    update: { isEmailVerified: true },
     create: {
       email: "admin@noblecert.com",
       password: adminPassword,
       name: "Super Admin Team",
       role: Role.SUPER_ADMIN,
+      isEmailVerified: true,
     },
   });
   console.log("✅ Đã tạo/tìm thấy Super Admin:", superAdmin.email);
@@ -24,12 +25,13 @@ async function main() {
   // 1. Tạo Instructor mẫu
   const instructor = await prisma.user.upsert({
     where: { email: "instructor@noblecert.com" },
-    update: {},
+    update: { isEmailVerified: true },
     create: {
       email: "instructor@noblecert.com",
       password: adminPassword,
       name: "Giảng viên Noble Cert",
       role: Role.INSTRUCTOR,
+      isEmailVerified: true,
     },
   });
   console.log("✅ Đã tạo/tìm thấy Instructor:", instructor.email);
@@ -38,12 +40,13 @@ async function main() {
   const studentPassword = await bcrypt.hash("student123", 12);
   const student = await prisma.user.upsert({
     where: { email: "student@example.com" },
-    update: {},
+    update: { isEmailVerified: true },
     create: {
       email: "student@example.com",
       password: studentPassword,
       name: "Học viên Demo",
       role: Role.STUDENT,
+      isEmailVerified: true,
     },
   });
   console.log("✅ Đã tạo/tìm thấy Student:", student.email);

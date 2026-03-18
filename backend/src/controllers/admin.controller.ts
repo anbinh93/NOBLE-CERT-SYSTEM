@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
+import crypto from "crypto";
+import bcrypt from "bcrypt";
 import { prisma } from "../config/database.config";
 import { catchAsync } from "../utils/catchAsync";
 import { sendSuccess } from "../utils/response";
+import { EmailService } from "../services/email.service";
+import { AuthService } from "../services/auth.service";
 
 // ─── Dashboard Stats ─────────────────────────────────────────────────
 export const getStats = catchAsync(async (_req: Request, res: Response) => {
@@ -71,6 +75,7 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
         email: true,
         role: true,
         isActive: true,
+        isEmailVerified: true,
         createdAt: true,
         _count: { select: { enrollments: true, courses: true } },
       },
@@ -97,6 +102,7 @@ export const getUserById = catchAsync(async (req: Request, res: Response) => {
       email: true,
       role: true,
       isActive: true,
+      isEmailVerified: true,
       createdAt: true,
       updatedAt: true,
       _count: { select: { enrollments: true, courses: true, orders: true } },
@@ -210,6 +216,11 @@ export const getCourses = catchAsync(async (req: Request, res: Response) => {
   }
   if (status) {
     where.status = status;
+  }
+
+  // Instructors can only see their own courses
+  if (req.user.role === "INSTRUCTOR") {
+    where.instructorId = req.user.id;
   }
 
   const [courses, total] = await Promise.all([
@@ -525,5 +536,126 @@ export const revokeCertificate = catchAsync(
     });
 
     sendSuccess(res, 200, null, "Đã thu hồi chứng chỉ!");
+  },
+);
+
+// ─── Create Instructor ───────────────────────────────────────────────
+
+export const createInstructor = catchAsync(
+  async (req: Request, res: Response) => {
+    const { name, email } = req.body;
+
+    if (!name || !email) {
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Vui lòng nhập tên và email!" });
+    }
+
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Email đã tồn tại trong hệ thống!" });
+    }
+
+    const tempPassword = crypto.randomBytes(4).toString("hex"); // 8 chars
+    const hashedPassword = await bcrypt.hash(tempPassword, 12);
+    const verifyToken = crypto.randomBytes(32).toString("hex");
+    const verifyTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: "INSTRUCTOR",
+        isActive: true,
+        isEmailVerified: false,
+        verifyToken,
+        verifyTokenExpires,
+      },
+      select: { id: true, name: true, email: true, role: true },
+    });
+
+    // Gửi email mời (non-blocking)
+    EmailService.sendInstructorInviteEmail(
+      email,
+      name,
+      verifyToken,
+      tempPassword,
+    ).catch((err) =>
+      console.error("[Admin] Failed to send instructor invite:", err.message),
+    );
+
+    sendSuccess(
+      res,
+      201,
+      { user, tempPassword },
+      "Đã tạo người hướng dẫn và gửi email mời!",
+    );
+  },
+);
+
+// ─── System Settings ─────────────────────────────────────────────────
+export const getSystemSettings = catchAsync(
+  async (_req: Request, res: Response) => {
+    const settings = await prisma.systemSetting.findMany();
+    const map: Record<string, string> = {};
+    settings.forEach((s) => {
+      map[s.key] = s.value;
+    });
+    sendSuccess(res, 200, { settings: map });
+  },
+);
+
+export const updateSystemSettings = catchAsync(
+  async (req: Request, res: Response) => {
+    const { settings } = req.body as { settings: Record<string, string> };
+
+    if (!settings || typeof settings !== "object") {
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Dữ liệu không hợp lệ!" });
+    }
+
+    // Upsert each key
+    const ops = Object.entries(settings).map(([key, value]) =>
+      prisma.systemSetting.upsert({
+        where: { key },
+        update: { value: String(value) },
+        create: { key, value: String(value) },
+      }),
+    );
+    await Promise.all(ops);
+
+    sendSuccess(res, 200, null, "Đã lưu cài đặt hệ thống!");
+  },
+);
+
+// ─── Send Test Email ─────────────────────────────────────────────────
+export const sendTestEmail = catchAsync(async (req: Request, res: Response) => {
+  const { email } = req.body;
+  if (!email) {
+    return res
+      .status(400)
+      .json({ status: "fail", message: "Vui lòng nhập email nhận test!" });
+  }
+
+  await EmailService.sendTestEmail(email);
+  sendSuccess(res, 200, null, "Đã gửi email test thành công!");
+});
+
+// ─── Admin: Resend Verification Email ────────────────────────────────
+export const resendVerificationByAdmin = catchAsync(
+  async (req: Request, res: Response) => {
+    const { email } = req.body;
+    if (!email) {
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Vui lòng cung cấp email!" });
+    }
+
+    const result = await AuthService.resendVerification(email);
+    sendSuccess(res, 200, result, "Đã gửi lại email xác thực!");
   },
 );

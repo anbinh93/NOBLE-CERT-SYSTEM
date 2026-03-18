@@ -30,7 +30,9 @@ import {
   BookOpen,
   CreditCard,
   Loader2,
+  MailCheck,
   Save,
+  Send,
   ShieldCheck,
   Trash2,
   User,
@@ -44,6 +46,7 @@ interface UserDetail {
   email: string;
   role: string;
   isActive: boolean;
+  isEmailVerified: boolean;
   createdAt: string;
   updatedAt: string;
   _count: { enrollments: number; courses: number; orders: number };
@@ -87,6 +90,7 @@ export default function UserDetailPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [resending, setResending] = useState(false);
 
   // Editable fields
   const [name, setName] = useState("");
@@ -146,6 +150,22 @@ export default function UserDetailPage() {
     }
   };
 
+  const handleResendVerification = async () => {
+    if (!user) return;
+    setResending(true);
+    try {
+      await adminFetch("/users/resend-verification", {
+        method: "POST",
+        body: JSON.stringify({ email: user.email }),
+      });
+      toast.success(`Đã gửi lại email xác thực đến ${user.email}`);
+    } catch (err: any) {
+      toast.error(err.message || "Gửi email thất bại!");
+    } finally {
+      setResending(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -194,6 +214,19 @@ export default function UserDetailPage() {
               <Badge variant={user.isActive ? "success" : "secondary"}>
                 {user.isActive ? "Hoạt động" : "Bị khoá"}
               </Badge>
+              {user.isEmailVerified ? (
+                <Badge variant="success" className="gap-1">
+                  <MailCheck className="h-3 w-3" />
+                  Email đã xác thực
+                </Badge>
+              ) : (
+                <Badge
+                  variant="outline"
+                  className="text-amber-600 border-amber-300"
+                >
+                  Email chưa xác thực
+                </Badge>
+              )}
             </div>
             <p className="text-sm text-muted-foreground">{user.email}</p>
           </div>
@@ -394,6 +427,12 @@ export default function UserDetailPage() {
                 </span>
               </div>
               <div className="flex justify-between">
+                <span className="text-muted-foreground">Email xác thực:</span>
+                <span className="font-semibold">
+                  {user.isEmailVerified ? "✅ Đã xác thực" : "⚠️ Chưa xác thực"}
+                </span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-muted-foreground">Cập nhật:</span>
                 <span className="font-semibold">
                   {new Date(user.updatedAt).toLocaleDateString("vi-VN")}
@@ -407,6 +446,26 @@ export default function UserDetailPage() {
               </div>
             </CardContent>
           </Card>
+
+          {!user.isEmailVerified && (
+            <Card>
+              <CardContent className="pt-6">
+                <Button
+                  variant="outline"
+                  className="w-full gap-2"
+                  disabled={resending}
+                  onClick={handleResendVerification}
+                >
+                  {resending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                  {resending ? "Đang gửi..." : "Gửi lại email xác thực"}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

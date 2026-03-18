@@ -145,10 +145,12 @@ export default function CoursesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">
-            Quản lý khoá học
+            {isAdmin ? "Quản lý khoá học" : "Khoá học của tôi"}
           </h2>
           <p className="text-muted-foreground">
-            Danh sách tất cả khoá học trên hệ thống.
+            {isAdmin
+              ? "Danh sách tất cả khoá học trên hệ thống."
+              : "Danh sách các khoá học được giao cho bạn."}
           </p>
         </div>
         {isAdmin && (
