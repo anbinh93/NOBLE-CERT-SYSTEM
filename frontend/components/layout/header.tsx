@@ -7,6 +7,8 @@ import useSWR from "swr"; // Added SWR
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { ModeToggle } from "@/components/mode-toggle"; // Added import
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useI18n } from "@/lib/i18n";
 import {
   Bell,
   LogOut,
@@ -19,7 +21,6 @@ import {
   BookOpen,
   Search,
   ChevronDown,
-  Globe,
   ArrowRight,
 } from "lucide-react";
 
@@ -33,6 +34,7 @@ export default function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isExploreOpen, setIsExploreOpen] = useState(false);
   const exploreRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
 
   // Notifications Logic
   const { data: notifData, mutate: mutateNotif } = useSWR(
@@ -127,7 +129,7 @@ export default function Header() {
                 onClick={() => setIsExploreOpen(!isExploreOpen)}
                 className={`flex items-center gap-1.5 px-3 py-2 text-sm font-semibold rounded-full transition-colors border ${isExploreOpen ? "bg-primary text-primary-foreground border-primary" : "bg-transparent text-muted-foreground border-transparent hover:bg-primary/10 hover:text-primary"}`}
               >
-                Khám phá{" "}
+                {t("header.explore")}{" "}
                 <ChevronDown
                   size={16}
                   className={`transition-transform duration-200 ${isExploreOpen ? "rotate-180" : ""}`}
@@ -139,7 +141,7 @@ export default function Header() {
                   {/* Column 1: Goals */}
                   <div>
                     <h3 className="font-bold text-primary mb-4 text-sm uppercase tracking-wider font-serif border-b border-primary/20 pb-2">
-                      Mục tiêu của bạn
+                      {t("header.goals.title")}
                     </h3>
                     <ul className="space-y-3">
                       <li>
@@ -148,7 +150,7 @@ export default function Header() {
                           className="text-foreground/80 hover:text-primary text-sm font-medium block transition-colors flex items-center gap-2"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>{" "}
-                          Khóa học miễn phí
+                          {t("header.goals.free")}
                         </Link>
                       </li>
                       <li>
@@ -157,7 +159,7 @@ export default function Header() {
                           className="text-foreground/80 hover:text-primary text-sm font-medium block transition-colors flex items-center gap-2"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>{" "}
-                          Kiếm chứng chỉ chuyên nghiệp
+                          {t("header.goals.cert")}
                         </Link>
                       </li>
                       <li>
@@ -166,7 +168,7 @@ export default function Header() {
                           className="text-foreground/80 hover:text-primary text-sm font-medium block transition-colors flex items-center gap-2"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>{" "}
-                          Nhận bằng đại học
+                          {t("header.goals.degree")}
                         </Link>
                       </li>
                       <li>
@@ -175,7 +177,7 @@ export default function Header() {
                           className="text-foreground/80 hover:text-primary text-sm font-medium block transition-colors flex items-center gap-2"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>{" "}
-                          Nâng cao kỹ năng
+                          {t("header.goals.skill")}
                         </Link>
                       </li>
                     </ul>
@@ -184,7 +186,7 @@ export default function Header() {
                   {/* Column 2: Topics */}
                   <div>
                     <h3 className="font-bold text-primary mb-4 text-sm uppercase tracking-wider font-serif border-b border-primary/20 pb-2">
-                      Chủ đề phổ biến
+                      {t("header.topics.title")}
                     </h3>
                     <ul className="space-y-3">
                       <li>
@@ -193,7 +195,7 @@ export default function Header() {
                           className="text-foreground/80 hover:text-primary text-sm font-medium block transition-colors flex items-center gap-2"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>{" "}
-                          Khoa học dữ liệu
+                          {t("header.topics.dataScience")}
                         </Link>
                       </li>
                       <li>
@@ -202,7 +204,7 @@ export default function Header() {
                           className="text-foreground/80 hover:text-primary text-sm font-medium block transition-colors flex items-center gap-2"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>{" "}
-                          Kinh doanh & Quản lý
+                          {t("header.topics.business")}
                         </Link>
                       </li>
                       <li>
@@ -211,7 +213,7 @@ export default function Header() {
                           className="text-foreground/80 hover:text-primary text-sm font-medium block transition-colors flex items-center gap-2"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>{" "}
-                          Khoa học máy tính
+                          {t("header.topics.cs")}
                         </Link>
                       </li>
                       <li>
@@ -220,7 +222,7 @@ export default function Header() {
                           className="text-foreground/80 hover:text-primary text-sm font-medium block transition-colors flex items-center gap-2"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>{" "}
-                          Công nghệ thông tin
+                          {t("header.topics.it")}
                         </Link>
                       </li>
                       <li>
@@ -229,7 +231,7 @@ export default function Header() {
                           className="text-foreground/80 hover:text-primary text-sm font-medium block transition-colors flex items-center gap-2"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>{" "}
-                          Học ngoại ngữ
+                          {t("header.topics.language")}
                         </Link>
                       </li>
                     </ul>
@@ -238,7 +240,7 @@ export default function Header() {
                         href="/courses"
                         className="text-primary text-sm font-bold hover:underline flex items-center gap-1 group"
                       >
-                        Xem tất cả chủ đề{" "}
+                        {t("header.topics.viewAll")}{" "}
                         <ArrowRight
                           size={14}
                           className="group-hover:translate-x-1 transition-transform"
@@ -255,7 +257,7 @@ export default function Header() {
                 href="/student/dashboard"
                 className="text-sm font-semibold text-foreground/90 hover:text-primary transition-colors"
               >
-                Học tập
+                {t("header.myLearning")}
               </Link>
             )}
           </div>
@@ -278,7 +280,7 @@ export default function Header() {
             <input
               name="search"
               type="text"
-              placeholder="Tìm kiếm khóa học..."
+              placeholder={t("header.searchPlaceholder")}
               className="w-full h-10 pl-4 pr-10 rounded-full border border-primary/20 bg-muted/30 text-foreground text-sm focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/60 transition-all shadow-inner placeholder:text-muted-foreground/50"
             />
             <button
@@ -292,9 +294,7 @@ export default function Header() {
 
         {/* RIGHT: Actions */}
         <div className="flex items-center gap-3 ml-auto">
-          <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
-            <Globe size={20} />
-          </button>
+          <LanguageSwitcher />
 
           <ModeToggle />
 
@@ -317,19 +317,19 @@ export default function Header() {
                   <div className="absolute right-0 mt-3 w-80 bg-card rounded-xl shadow-2xl border border-primary/20 py-2 animate-in fade-in slide-in-from-top-2 z-50 overflow-hidden">
                     <div className="px-4 py-3 border-b border-primary/10 flex justify-between items-center bg-muted/30">
                       <h3 className="font-semibold text-sm text-foreground">
-                        Thông báo
+                        {t("header.notifications.title")}
                       </h3>
                       <button
                         onClick={() => {}}
                         className="text-xs text-primary hover:text-primary/80 font-medium"
                       >
-                        Đánh dấu đã đọc
+                        {t("header.notifications.markAllRead")}
                       </button>
                     </div>
                     <div className="max-h-[320px] overflow-y-auto custom-scrollbar">
                       {notifications.length === 0 ? (
                         <div className="p-8 text-center text-sm text-muted-foreground">
-                          Chưa có thông báo nào
+                          {t("header.notifications.empty")}
                         </div>
                       ) : (
                         notifications.map((notif: any) => (
@@ -405,13 +405,13 @@ export default function Header() {
                         href="/student/learning"
                         className="flex items-center gap-3 px-4 py-2 text-sm text-foreground/80 hover:bg-primary/10 hover:text-primary transition-colors"
                       >
-                        <BookOpen size={16} /> Vào học
+                        <BookOpen size={16} /> {t("header.userMenu.learning")}
                       </Link>
                       <Link
                         href="/student/certificates"
                         className="flex items-center gap-3 px-4 py-2 text-sm text-foreground/80 hover:bg-primary/10 hover:text-primary transition-colors"
                       >
-                        <Award size={16} /> Chứng nhận
+                        <Award size={16} /> {t("header.userMenu.certificates")}
                       </Link>
                     </div>
 
@@ -420,13 +420,13 @@ export default function Header() {
                         href="/student/settings"
                         className="flex items-center gap-3 px-4 py-2 text-sm text-foreground/80 hover:bg-primary/10 hover:text-primary transition-colors"
                       >
-                        <Settings size={16} /> Cài đặt
+                        <Settings size={16} /> {t("header.userMenu.settings")}
                       </Link>
                       <button
                         onClick={() => signOut({ callbackUrl: "/" })}
                         className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-colors text-left"
                       >
-                        <LogOut size={16} /> Đăng xuất
+                        <LogOut size={16} /> {t("header.userMenu.signOut")}
                       </button>
                     </div>
                   </div>
@@ -440,13 +440,13 @@ export default function Header() {
                 href="/login"
                 className="hidden md:block px-4 py-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
               >
-                Sign In
+                {t("header.auth.signIn")}
               </Link>
               <Link
                 href="/signup"
                 className="px-6 py-2 text-sm font-bold text-primary-foreground bg-primary hover:bg-amber-400 rounded-full shadow-[0_0_15px_rgba(212,175,55,0.4)] transition-all transform hover:-translate-y-0.5"
               >
-                Join Free
+                {t("header.auth.joinFree")}
               </Link>
             </div>
           )}

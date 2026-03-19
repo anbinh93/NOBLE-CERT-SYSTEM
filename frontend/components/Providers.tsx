@@ -2,17 +2,20 @@
 
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { I18nProvider } from "@/lib/i18n";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   if (!SessionProvider) {
     console.error("Critical Error: SessionProvider is undefined.");
-    return <>{children}</>; 
+    return <>{children}</>;
   }
 
   return (
     <SessionProvider>
       <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
-        {children}
+        <I18nProvider>
+          {children}
+        </I18nProvider>
       </NextThemesProvider>
     </SessionProvider>
   );
