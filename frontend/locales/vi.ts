@@ -1,6 +1,7 @@
 const vi = {
   header: {
     explore: "Khám phá",
+    blog: "Blog",
     myLearning: "Học tập",
     searchPlaceholder: "Tìm kiếm khóa học...",
     goals: {
@@ -141,6 +142,8 @@ const vi = {
   language: {
     vi: "Tiếng Việt",
     en: "English",
+    zh: "Tiếng Trung",
+    ja: "Tiếng Nhật",
     switchTo: "Chuyển sang",
   },
 } as const;

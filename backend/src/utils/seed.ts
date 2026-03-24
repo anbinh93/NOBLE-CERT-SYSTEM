@@ -396,6 +396,97 @@ async function main() {
     console.log(`✅ Đã ghi danh Student vào: ${course.title}`);
   }
 
+  // 4. Seed blog posts
+  const mockPosts = [
+    {
+      title: "Lộ trình chinh phục IELTS 8.0 trong 6 tháng",
+      slug: "lo-trinh-chinh-phuc-ielts-8-0-trong-6-thang",
+      excerpt: "Chia sẻ phương pháp học tập hiệu quả và lộ trình cụ thể từ những học viên đã đạt điểm IELTS 8.0+. Từ nền tảng 5.5 lên 8.0 chỉ trong 6 tháng.",
+      content: `<h2>Tại sao IELTS 8.0 không phải là giấc mơ?</h2><p>Nhiều học viên nghĩ rằng IELTS 8.0 là mục tiêu quá xa vời, nhưng thực tế với phương pháp đúng đắn và lộ trình bài bản, đây là điều hoàn toàn có thể đạt được trong 6 tháng.</p><h2>Giai đoạn 1: Xây dựng nền tảng (Tháng 1-2)</h2><p>Tập trung vào vocabulary và grammar căn bản. Học ít nhất 20 từ mới mỗi ngày và ôn luyện cấu trúc câu phức hợp.</p><h2>Giai đoạn 2: Kỹ năng tổng hợp (Tháng 3-4)</h2><p>Luyện tập 4 kỹ năng Listening, Reading, Writing, Speaking mỗi ngày. Đặt mục tiêu làm ít nhất 2 đề thi thử mỗi tuần.</p><h2>Giai đoạn 3: Hoàn thiện (Tháng 5-6)</h2><p>Tập trung vào điểm yếu, làm nhiều mock test và phân tích lỗi sai. Tham gia các buổi speaking club để nâng cao tự tin.</p>`,
+      thumbnail: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80",
+      category: "Hướng dẫn",
+      tags: ["IELTS", "Tiếng Anh", "Học thuật"],
+      readTime: 8,
+      isPublished: true,
+      publishedAt: new Date("2025-03-01"),
+      authorId: instructor.id,
+    },
+    {
+      title: "Top 5 sai lầm phổ biến khi học tiếng Anh tự học",
+      slug: "top-5-sai-lam-pho-bien-khi-hoc-tieng-anh-tu-hoc",
+      excerpt: "Nhiều người học tiếng Anh năm này qua năm khác mà vẫn không tiến bộ. Hãy cùng tìm hiểu 5 sai lầm phổ biến nhất và cách khắc phục.",
+      content: `<h2>Sai lầm 1: Học ngữ pháp quá nhiều mà ít nói</h2><p>Ngữ pháp là công cụ, không phải mục tiêu. Hãy dành ít nhất 30 phút mỗi ngày để luyện speaking, dù chỉ là nói chuyện một mình.</p><h2>Sai lầm 2: Dịch từng từ trong đầu</h2><p>Não bộ cần được luyện tập để nghĩ trực tiếp bằng tiếng Anh. Hãy cố gắng đặt câu mà không dịch qua tiếng Việt.</p><h2>Sai lầm 3: Chỉ học vocabulary rời rạc</h2><p>Học từ theo chủ đề và trong ngữ cảnh cụ thể sẽ hiệu quả hơn nhiều so với việc học từ điển từng từ một.</p>`,
+      thumbnail: "https://images.unsplash.com/photo-1434030216411-0b793f4b6f18?w=800&q=80",
+      category: "Mẹo học tập",
+      tags: ["Tiếng Anh", "Tự học", "Phương pháp"],
+      readTime: 6,
+      isPublished: true,
+      publishedAt: new Date("2025-03-05"),
+      authorId: instructor.id,
+    },
+    {
+      title: "Chứng chỉ số Blockchain — Tương lai của xác thực học vấn",
+      slug: "chung-chi-so-blockchain-tuong-lai-xac-thuc-hoc-van",
+      excerpt: "Blockchain đang thay đổi cách chúng ta xác thực bằng cấp và chứng chỉ. Tìm hiểu tại sao công nghệ này sẽ trở thành chuẩn mực toàn cầu.",
+      content: `<h2>Vấn đề với chứng chỉ truyền thống</h2><p>Hàng năm, hàng nghìn trường hợp bằng giả được phát hiện tại các doanh nghiệp lớn. Chi phí xác minh tốn kém và quy trình phức tạp khiến việc kiểm tra học vấn trở nên khó khăn.</p><h2>Blockchain giải quyết vấn đề như thế nào?</h2><p>Với công nghệ blockchain, mỗi chứng chỉ được mã hóa và lưu trữ phân tán trên mạng lưới toàn cầu. Không ai có thể làm giả hay chỉnh sửa mà không để lại dấu vết.</p><h2>Noble Cert và sứ mệnh minh bạch hóa giáo dục</h2><p>Tại Noble Cert, mỗi chứng chỉ hoàn thành khóa học đều được cấp kèm mã xác thực blockchain, cho phép bất kỳ ai cũng có thể verify ngay lập tức.</p>`,
+      thumbnail: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80",
+      category: "Công nghệ",
+      tags: ["Blockchain", "Chứng chỉ", "EdTech"],
+      readTime: 5,
+      isPublished: true,
+      publishedAt: new Date("2025-03-10"),
+      authorId: superAdmin.id,
+    },
+    {
+      title: "Data Science — Ngành nghề hot nhất thập kỷ và cách bắt đầu",
+      slug: "data-science-nganh-nghe-hot-nhat-thap-ky",
+      excerpt: "Data Scientist liên tục được xếp hạng là nghề tốt nhất của thế kỷ 21. Bài viết này sẽ chỉ bạn con đường ngắn nhất để bước vào ngành này.",
+      content: `<h2>Data Science là gì?</h2><p>Data Science là lĩnh vực kết hợp thống kê, lập trình và domain knowledge để trích xuất insight có giá trị từ dữ liệu lớn.</p><h2>Kỹ năng cần có</h2><p>Python hoặc R, SQL, Machine Learning cơ bản, Data Visualization, và khả năng kể chuyện bằng dữ liệu là những kỹ năng thiết yếu.</p><h2>Lộ trình 12 tháng cho người mới bắt đầu</h2><p>Tháng 1-3: Python cơ bản và Pandas. Tháng 4-6: SQL và Data Analysis. Tháng 7-9: Machine Learning với Scikit-learn. Tháng 10-12: Deep Learning và xây dựng portfolio.</p>`,
+      thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
+      category: "Sự nghiệp",
+      tags: ["Data Science", "Python", "Machine Learning"],
+      readTime: 10,
+      isPublished: true,
+      publishedAt: new Date("2025-03-12"),
+      authorId: instructor.id,
+    },
+    {
+      title: "Noble Cert ra mắt chương trình học bổng 2025",
+      slug: "noble-cert-ra-mat-chuong-trinh-hoc-bong-2025",
+      excerpt: "Noble Cert chính thức công bố chương trình học bổng toàn phần dành cho 50 học viên xuất sắc trong năm 2025. Đăng ký ngay hôm nay.",
+      content: `<h2>Noble Cert Scholarship 2025</h2><p>Với mong muốn mang cơ hội học tập chất lượng cao đến với tất cả mọi người, Noble Cert tự hào công bố chương trình học bổng toàn phần trị giá hàng trăm triệu đồng.</p><h2>Đối tượng tham gia</h2><p>Học sinh, sinh viên và người đi làm có hoàn cảnh khó khăn nhưng có tinh thần học tập xuất sắc. Không giới hạn độ tuổi và ngành nghề.</p><h2>Quyền lợi học bổng</h2><p>Miễn 100% học phí cho tất cả khóa học trên nền tảng, hỗ trợ mentoring 1-1 với giảng viên, và cơ hội thực tập tại các doanh nghiệp đối tác.</p><h2>Hạn đăng ký</h2><p>31/03/2025. Hồ sơ nộp qua email: scholarship@noblecert.edu.vn</p>`,
+      thumbnail: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&q=80",
+      category: "Tin tức",
+      tags: ["Học bổng", "Sự kiện", "Noble Cert"],
+      readTime: 4,
+      isPublished: true,
+      publishedAt: new Date("2025-03-15"),
+      authorId: superAdmin.id,
+    },
+    {
+      title: "Kỹ năng mềm — Yếu tố quyết định 80% thành công trong sự nghiệp",
+      slug: "ky-nang-mem-yeu-to-quyet-dinh-thanh-cong",
+      excerpt: "Nghiên cứu từ Harvard chỉ ra rằng 85% thành công trong sự nghiệp đến từ kỹ năng mềm. Bạn đã chuẩn bị đủ chưa?",
+      content: `<h2>Kỹ năng mềm quan trọng hơn bạn nghĩ</h2><p>Trong khi nhiều người tập trung vào bằng cấp và chứng chỉ kỹ thuật, các nhà tuyển dụng ngày càng coi trọng khả năng giao tiếp, làm việc nhóm và lãnh đạo.</p><h2>5 kỹ năng mềm thiết yếu</h2><p>1. Giao tiếp hiệu quả — 2. Tư duy phản biện — 3. Quản lý thời gian — 4. Làm việc nhóm — 5. Thích nghi với thay đổi</p><h2>Cách phát triển kỹ năng mềm</h2><p>Tham gia câu lạc bộ, nhận feedback thường xuyên, đọc sách về tâm lý học và lãnh đạo, và quan trọng nhất là thực hành trong môi trường thực tế.</p>`,
+      thumbnail: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80",
+      category: "Kỹ năng",
+      tags: ["Kỹ năng mềm", "Sự nghiệp", "Phát triển bản thân"],
+      readTime: 7,
+      isPublished: true,
+      publishedAt: new Date("2025-03-18"),
+      authorId: instructor.id,
+    },
+  ];
+
+  for (const postData of mockPosts) {
+    await prisma.post.upsert({
+      where: { slug: postData.slug },
+      update: { isPublished: true },
+      create: postData,
+    });
+    console.log(`✅ Đã nạp bài viết: ${postData.title}`);
+  }
+
   console.log("--- Hoàn tất Seeding ---");
 }
 

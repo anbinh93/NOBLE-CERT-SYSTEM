@@ -1,6 +1,6 @@
 // src/routes/instructor.routes.ts
 import { Router } from 'express';
-import { createCourse, updateCourse, publishCourse } from '../controllers/course.controller';
+import { updateCourse, publishCourse } from '../controllers/course.controller';
 import { protect, restrictTo } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -9,8 +9,7 @@ const router = Router();
 router.use(protect);
 router.use(restrictTo('INSTRUCTOR', 'SUPER_ADMIN'));
 
-// Các endpoint quản trị khóa học
-router.post('/courses', createCourse);
+// Instructor chỉ được cập nhật và publish — không được tạo khoá học
 router.put('/courses/:id', updateCourse);
 router.patch('/courses/:id/publish', publishCourse);
 

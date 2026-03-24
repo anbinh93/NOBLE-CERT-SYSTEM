@@ -32,9 +32,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import Link from "next/link";
 import {
   ArrowLeft,
   Archive,
+  ClipboardList,
   Globe,
   ImagePlus,
   Loader2,
@@ -393,6 +395,12 @@ export default function CourseDetailPage() {
         </div>
 
         <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href={`/courses/${courseId}/attendance`}>
+              <ClipboardList className="mr-2 h-4 w-4" />
+              Điểm danh
+            </Link>
+          </Button>
           {(course.status === "DRAFT" || course.status === "ARCHIVED") && (
             <Button
               variant="outline"

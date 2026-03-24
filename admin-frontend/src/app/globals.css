@@ -160,3 +160,35 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ─── TipTap Editor Styles ─────────────────────────────── */
+.ProseMirror {
+  outline: none;
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
+  height: 0;
+}
+.ProseMirror h1 { @apply text-3xl font-bold font-serif mb-4 mt-6; }
+.ProseMirror h2 { @apply text-2xl font-bold font-serif mb-3 mt-5; }
+.ProseMirror h3 { @apply text-xl font-bold mb-3 mt-4; }
+.ProseMirror p  { @apply mb-3 leading-relaxed; }
+.ProseMirror ul { @apply list-disc pl-6 mb-3 space-y-1; }
+.ProseMirror ol { @apply list-decimal pl-6 mb-3 space-y-1; }
+.ProseMirror blockquote { @apply border-l-4 border-primary/50 pl-4 italic text-muted-foreground my-4; }
+.ProseMirror code { @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono; }
+.ProseMirror pre  { @apply bg-muted rounded-lg p-4 mb-4 overflow-x-auto; }
+.ProseMirror pre code { @apply bg-transparent p-0 text-sm; }
+.ProseMirror hr { @apply border-border my-6; }
+.ProseMirror a  { @apply text-primary underline; }
+.ProseMirror img { @apply rounded-lg max-w-full my-4; }
+.ProseMirror mark { @apply bg-yellow-400/30 dark:bg-yellow-500/20 px-0.5 rounded; }
+/* Table */
+.ProseMirror table { @apply w-full border-collapse my-4; }
+.ProseMirror table td,
+.ProseMirror table th { @apply border border-border px-3 py-2 text-sm align-top; }
+.ProseMirror table th { @apply bg-muted font-semibold; }
+.ProseMirror .selectedCell:after { @apply bg-primary/10; content: ""; position: absolute; inset: 0; pointer-events: none; }

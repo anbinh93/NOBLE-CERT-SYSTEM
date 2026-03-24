@@ -2,20 +2,25 @@ import { Router } from 'express';
 import {
   getPublicCourses,
   getPublicCourseBySlug,
+  getPublicPosts,
+  getPublicPostBySlug,
   healthCheck,
   verifyCertificate,
   certificatePreview,
+  certificateDownload,
 } from '../controllers/public.controller';
 
 const router = Router();
 
 router.get('/courses', getPublicCourses);
 router.get('/courses/:slug', getPublicCourseBySlug);
+router.get('/posts', getPublicPosts);
+router.get('/posts/:slug', getPublicPostBySlug);
 router.get('/health', healthCheck);
 
-// Đặt /verify/:serial/preview TRƯỚC /verify/:serial
-// để Express không match "preview" là một serial
+// Thứ tự quan trọng: sub-paths trước /:serial
 router.get('/verify/:serial/preview', certificatePreview);
+router.get('/verify/:serial/download', certificateDownload);
 router.get('/verify/:serial', verifyCertificate);
 
 export default router;

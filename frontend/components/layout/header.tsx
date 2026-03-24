@@ -252,6 +252,13 @@ export default function Header() {
               )}
             </div>
 
+            <Link
+              href="/blog"
+              className="text-sm font-semibold text-foreground/90 hover:text-primary transition-colors"
+            >
+              {t("header.blog")}
+            </Link>
+
             {status === "authenticated" && (
               <Link
                 href="/student/dashboard"

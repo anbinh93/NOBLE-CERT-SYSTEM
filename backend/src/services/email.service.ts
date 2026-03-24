@@ -239,4 +239,132 @@ export class EmailService {
 
     return true;
   }
+
+  /**
+   * Gửi chứng chỉ PDF cho học viên sau khi thanh toán thành công.
+   */
+  static async sendCertificateToStudent(
+    to: string,
+    studentName: string,
+    courseName: string,
+    serialNumber: string,
+    pdfBuffer: Buffer,
+  ) {
+    const transporter = await createTransporter();
+    if (!transporter) {
+      console.log(`[EmailService] Skipped certificate email to ${to} (SMTP not configured)`);
+      return false;
+    }
+
+    const config = await getEmailConfig();
+    const verifyUrl = `${process.env.CLIENT_URL || "http://localhost:3000"}/verify/${serialNumber}`;
+
+    await transporter.sendMail({
+      from: `"${config.fromName}" <${config.user}>`,
+      to,
+      subject: `🎓 Chứng chỉ hoàn thành khoá học — ${courseName}`,
+      html: `
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: #0f766e; margin: 0;">Noble Cert</h1>
+          </div>
+          <div style="background: #f8fafc; border-radius: 12px; padding: 32px; border: 1px solid #e2e8f0;">
+            <h2 style="margin-top: 0; color: #1e293b;">Chúc mừng ${studentName}! 🎉</h2>
+            <p style="color: #475569; line-height: 1.8;">
+              Bạn đã <strong>hoàn thành</strong> khoá học <strong>${courseName}</strong> tại Noble Cert.
+              Chứng chỉ của bạn đã được đính kèm trong email này.
+            </p>
+            <div style="background: #fff8e1; border: 1px solid #D4AF37; border-radius: 8px; padding: 16px; margin: 24px 0;">
+              <p style="margin: 0; color: #92400e; font-size: 14px;">
+                <strong>Mã chứng chỉ:</strong> <code style="font-family: monospace; background: #fef3c7; padding: 2px 8px; border-radius: 4px;">${serialNumber}</code>
+              </p>
+            </div>
+            <div style="text-align: center; margin: 28px 0;">
+              <a href="${verifyUrl}"
+                 style="display: inline-block; background: #0f766e; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                Xem & Chia sẻ chứng chỉ
+              </a>
+            </div>
+            <p style="color: #94a3b8; font-size: 12px; text-align: center;">
+              Chứng chỉ có thể được xác thực tại <a href="${verifyUrl}" style="color: #0f766e;">${verifyUrl}</a>
+            </p>
+          </div>
+        </div>
+      `,
+      attachments: [
+        {
+          filename: `certificate-${serialNumber}.pdf`,
+          content: pdfBuffer,
+          contentType: "application/pdf",
+        },
+      ],
+    });
+
+    return true;
+  }
+
+  /**
+   * Gửi thông báo đến Admin/Support khi có chứng chỉ được cấp mới.
+   */
+  static async sendCertificateIssuedNotification(
+    adminEmails: string[],
+    studentName: string,
+    studentEmail: string,
+    courseName: string,
+    serialNumber: string,
+  ) {
+    if (!adminEmails.length) return false;
+
+    const transporter = await createTransporter();
+    if (!transporter) {
+      console.log("[EmailService] Skipped admin cert notification (SMTP not configured)");
+      return false;
+    }
+
+    const config = await getEmailConfig();
+    const now = new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
+
+    await transporter.sendMail({
+      from: `"${config.fromName}" <${config.user}>`,
+      to: adminEmails.join(", "),
+      subject: `[Chứng chỉ mới] ${studentName} — ${courseName}`,
+      html: `
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <h1 style="color: #0f766e; margin: 0; font-size: 20px;">Noble Cert — Thông báo hệ thống</h1>
+          </div>
+          <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 24px;">
+            <h2 style="margin-top: 0; color: #166534; font-size: 16px;">✅ Chứng chỉ mới vừa được cấp</h2>
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280; width: 140px;">Học viên</td>
+                <td style="padding: 8px 0; font-weight: 600; color: #1e293b;">${studentName}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;">Email</td>
+                <td style="padding: 8px 0; color: #1e293b;">${studentEmail}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;">Khoá học</td>
+                <td style="padding: 8px 0; font-weight: 600; color: #1e293b;">${courseName}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;">Mã chứng chỉ</td>
+                <td style="padding: 8px 0; font-family: monospace; color: #0f766e; font-weight: 600;">${serialNumber}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280;">Thời gian</td>
+                <td style="padding: 8px 0; color: #1e293b;">${now}</td>
+              </tr>
+            </table>
+          </div>
+          <p style="color: #94a3b8; font-size: 11px; text-align: center; margin-top: 20px;">
+            Email tự động từ hệ thống Noble Cert.
+          </p>
+        </div>
+      `,
+    });
+
+    return true;
+  }
 }

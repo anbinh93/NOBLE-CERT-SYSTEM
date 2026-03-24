@@ -43,13 +43,16 @@ async function getCourses() {
 
 
 import FeaturedCoursesCarousel from "@/components/landing/FeaturedCoursesCarousel";
+import BlogCarousel from "@/components/landing/BlogCarousel";
 import TestimonialVideo from "@/components/landing/TestimonialVideo";
+import { BlogService } from "@/services/blog.service";
 
 // ... (existing helper function)
 
 export default async function LandingPage() {
   const courses = await getCourses();
-  const featuredCourses = courses.slice(0, 8); // Updated to show more courses in carousel
+  const featuredCourses = courses.slice(0, 8);
+  const posts = await BlogService.getLatestPosts(6);
 
 
   return (
@@ -303,6 +306,38 @@ export default async function LandingPage() {
                        ))}
                    </div>
                </div>
+          </div>
+      </section>
+
+      {/* --- BLOG SECTION --- */}
+      <section className="py-20 bg-background relative overflow-hidden">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-bold mb-4">
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                  KIẾN THỨC & TIN TỨC
+                </div>
+                <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground leading-tight">
+                  Cập nhật xu hướng <span className="text-primary">học tập</span>
+                </h2>
+              </div>
+              <Link
+                href="/blog"
+                className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors group"
+              >
+                Xem tất cả bài viết
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            <BlogCarousel posts={posts} />
+
+            <div className="mt-6 text-center md:hidden">
+              <Link href="/blog" className="text-sm font-semibold text-primary hover:underline">
+                Xem tất cả bài viết →
+              </Link>
+            </div>
           </div>
       </section>
 

@@ -23,7 +23,7 @@ app.use(
     credentials: true,
   }),
 );
-app.use(express.json({ limit: "10kb" })); // Body parser
+app.use(express.json({ limit: "2mb" })); // Body parser (larger for rich text post content)
 app.use(cookieParser()); // ĐỂ ĐỌC ĐƯỢC req.cookies
 
 // 2. Rate Limiting (Chống Spam/Brute-force)

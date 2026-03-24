@@ -3,6 +3,8 @@ import PayOS from "@payos/node";
 import { AppError } from "../utils/AppError";
 import { prisma } from "../config/database.config";
 import { env } from "../config/env.config";
+import { generateCertificatePDF } from "./certificate.service";
+import { EmailService } from "./email.service";
 
 const payos = new PayOS(
   env.PAYOS_CLIENT_ID,
@@ -68,13 +70,26 @@ export class PaymentService {
       throw new AppError("Không tìm thấy khóa học", 404);
     }
 
+    // Kiểm tra: học viên phải hoàn thành khoá học (COMPLETED từ điểm danh hoặc bài thi)
+    // và chưa có đơn chứng chỉ nào SUCCESS cho khoá này
     const enrollment = await prisma.enrollment.findFirst({
-      where: { userId, courseId, status: "PENDING_PAYMENT" },
+      where: { userId, courseId, status: "COMPLETED" },
     });
 
     if (!enrollment) {
       throw new AppError(
-        "Bạn chưa đủ điều kiện nhận chứng chỉ hoặc đã nhận rồi.",
+        "Bạn chưa hoàn thành khoá học hoặc chưa đủ điều kiện nhận chứng chỉ.",
+        400,
+      );
+    }
+
+    // Kiểm tra xem đã từng thanh toán thành công chưa (tránh trả phí 2 lần)
+    const existingSuccessOrder = await prisma.order.findFirst({
+      where: { userId, courseId, status: OrderStatus.SUCCESS, memo: { startsWith: "CERT" } },
+    });
+    if (existingSuccessOrder) {
+      throw new AppError(
+        "Chứng chỉ của bạn đã được cấp. Hãy kiểm tra email hoặc trang chứng chỉ.",
         400,
       );
     }
@@ -129,48 +144,56 @@ export class PaymentService {
   ): Promise<WebhookResult> {
     const webhookData = this.verifyWebhookSignature(webhookBody);
 
-    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const order = await tx.order.findUnique({
-        where: { orderCode: Number(webhookData.orderCode) },
-      });
-      if (!order || order.status !== OrderStatus.PENDING) return;
+    let certOrderId: string | null = null;
 
-      if (order.amount !== webhookData.amount) {
+    try {
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const order = await tx.order.findUnique({
+          where: { orderCode: Number(webhookData.orderCode) },
+        });
+        if (!order || order.status !== OrderStatus.PENDING) return;
+
+        if (order.amount !== webhookData.amount) {
+          await tx.order.update({
+            where: { id: order.id },
+            data: { status: OrderStatus.MISMATCH },
+          });
+          return;
+        }
+
+        const isSuccess =
+          webhookData.code === "00" || webhookBody.success === true;
+        if (!isSuccess) return;
+
         await tx.order.update({
           where: { id: order.id },
-          data: { status: OrderStatus.MISMATCH },
+          data: { status: OrderStatus.SUCCESS },
         });
-        return;
-      }
 
-      const isSuccess =
-        webhookData.code === "00" || webhookBody.success === true;
-      if (!isSuccess) return;
-
-      await tx.order.update({
-        where: { id: order.id },
-        data: { status: OrderStatus.SUCCESS },
+        if (order.memo.startsWith("CERT")) {
+          // Enrollment đã COMPLETED từ điểm danh — chỉ cần ghi nhận cert issued
+          certOrderId = order.id;
+        } else {
+          await tx.enrollment.create({
+            data: {
+              userId: order.userId,
+              courseId: order.courseId,
+              status: "ACTIVE",
+            },
+          });
+        }
       });
+    } catch {
+      // Nếu transaction fail (non-replica-set MongoDB), dùng fallback
+      await this.processPaymentFallback(Number(webhookData.orderCode));
+    }
 
-      if (order.memo.startsWith("CERT")) {
-        await tx.enrollment.updateMany({
-          where: {
-            userId: order.userId,
-            courseId: order.courseId,
-            status: "PENDING_PAYMENT",
-          },
-          data: { status: "COMPLETED" },
-        });
-      } else {
-        await tx.enrollment.create({
-          data: {
-            userId: order.userId,
-            courseId: order.courseId,
-            status: "ACTIVE",
-          },
-        });
-      }
-    });
+    // Sau transaction: generate PDF + gửi email (async, không block response)
+    if (certOrderId) {
+      this.issueCertificateAfterPayment(certOrderId).catch((e) =>
+        console.error("[CertIssuance] Error after webhook:", e),
+      );
+    }
 
     return { success: true };
   }
@@ -187,31 +210,36 @@ export class PaymentService {
       if (!paymentLinkData) return;
 
       if (paymentLinkData.status === "PAID") {
-        await prisma.$transaction(async (tx) => {
-          await tx.order.update({
-            where: { id: order.id },
-            data: { status: OrderStatus.SUCCESS },
-          });
+        let certOrderId: string | null = null;
 
-          if (order.memo.startsWith("CERT")) {
-            await tx.enrollment.updateMany({
-              where: {
-                userId: order.userId,
-                courseId: order.courseId,
-                status: "PENDING_PAYMENT",
-              },
-              data: { status: "COMPLETED" },
+        try {
+          await prisma.$transaction(async (tx) => {
+            await tx.order.update({
+              where: { id: order.id },
+              data: { status: OrderStatus.SUCCESS },
             });
-          } else {
-            await tx.enrollment.create({
-              data: {
-                userId: order.userId,
-                courseId: order.courseId,
-                status: "ACTIVE",
-              },
-            });
-          }
-        });
+
+            if (order.memo.startsWith("CERT")) {
+              certOrderId = order.id;
+            } else {
+              await tx.enrollment.create({
+                data: {
+                  userId: order.userId,
+                  courseId: order.courseId,
+                  status: "ACTIVE",
+                },
+              });
+            }
+          });
+        } catch {
+          await this.processPaymentFallback(orderCode);
+        }
+
+        if (certOrderId) {
+          this.issueCertificateAfterPayment(certOrderId).catch((e) =>
+            console.error("[CertIssuance] Error after sync:", e),
+          );
+        }
       } else if (paymentLinkData.status === "CANCELLED") {
         await prisma.order.update({
           where: { id: order.id },
@@ -321,5 +349,115 @@ export class PaymentService {
         400,
       );
     }
+  }
+
+  /**
+   * Fallback cho môi trường MongoDB không có replica set (không dùng transaction).
+   */
+  private static async processPaymentFallback(orderCode: number): Promise<void> {
+    const order = await prisma.order.findUnique({ where: { orderCode } });
+    if (!order || order.status === OrderStatus.SUCCESS) return;
+
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { status: OrderStatus.SUCCESS },
+    });
+
+    if (!order.memo.startsWith("CERT")) {
+      const existing = await prisma.enrollment.findFirst({
+        where: { userId: order.userId, courseId: order.courseId },
+      });
+      if (!existing) {
+        await prisma.enrollment.create({
+          data: { userId: order.userId, courseId: order.courseId, status: "ACTIVE" },
+        });
+      }
+    }
+  }
+
+  /**
+   * Sau khi thanh toán cert thành công:
+   * 1. Generate PDF chứng chỉ
+   * 2. Gửi email cho học viên (kèm PDF)
+   * 3. Gửi thông báo cho Admin/Support
+   */
+  private static async issueCertificateAfterPayment(orderId: string): Promise<void> {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        course: {
+          select: {
+            id: true,
+            title: true,
+            instructor: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (!order) return;
+
+    // Tìm enrollment đã COMPLETED
+    const enrollment = await prisma.enrollment.findFirst({
+      where: { userId: order.userId, courseId: order.courseId, status: "COMPLETED" },
+    });
+
+    if (!enrollment) {
+      console.warn(`[CertIssuance] No COMPLETED enrollment found for order ${orderId}`);
+      return;
+    }
+
+    const serialNumber = `NC-${enrollment.id.slice(-8).toUpperCase()}`;
+    const course = order.course as any;
+    const studentName = order.user.name ?? "Học viên";
+    const courseName = course?.title ?? "Khoá học";
+    const instructorName = course?.instructor?.name ?? "Noble Cert";
+    const issuedDate = new Date(enrollment.updatedAt ?? Date.now()).toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    // Generate PDF
+    let pdfBuffer: Buffer;
+    try {
+      pdfBuffer = await generateCertificatePDF({
+        studentName,
+        courseName,
+        instructorName,
+        issuedDate,
+        serialNumber,
+      });
+    } catch (e) {
+      console.error("[CertIssuance] PDF generation failed:", e);
+      return;
+    }
+
+    // Gửi email cho học viên
+    await EmailService.sendCertificateToStudent(
+      order.user.email,
+      studentName,
+      courseName,
+      serialNumber,
+      pdfBuffer,
+    ).catch((e) => console.error("[CertIssuance] Student email failed:", e));
+
+    // Lấy danh sách email admin + support để thông báo
+    const adminUsers = await prisma.user.findMany({
+      where: { role: { in: ["SUPER_ADMIN", "STAFF"] }, isActive: true },
+      select: { email: true },
+    });
+    const adminEmails = adminUsers.map((u) => u.email);
+
+    await EmailService.sendCertificateIssuedNotification(
+      adminEmails,
+      studentName,
+      order.user.email,
+      courseName,
+      serialNumber,
+    ).catch((e) => console.error("[CertIssuance] Admin notification failed:", e));
+
+    console.log(`[CertIssuance] ✅ Certificate issued: ${serialNumber} → ${order.user.email}`);
   }
 }

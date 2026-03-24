@@ -7,6 +7,8 @@ import { Globe } from "lucide-react";
 const LOCALES: { value: Locale; label: string; flag: string }[] = [
   { value: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
   { value: "en", label: "English", flag: "🇺🇸" },
+  { value: "zh", label: "中文", flag: "🇨🇳" },
+  { value: "ja", label: "日本語", flag: "🇯🇵" },
 ];
 
 export function LanguageSwitcher() {

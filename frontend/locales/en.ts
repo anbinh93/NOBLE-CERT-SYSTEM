@@ -1,6 +1,7 @@
 const en = {
   header: {
     explore: "Explore",
+    blog: "Blog",
     myLearning: "My Learning",
     searchPlaceholder: "Search courses...",
     goals: {
@@ -141,6 +142,8 @@ const en = {
   language: {
     vi: "Tiếng Việt",
     en: "English",
+    zh: "Chinese",
+    ja: "Japanese",
     switchTo: "Switch to",
   },
 } as const;

@@ -645,6 +645,149 @@ export const sendTestEmail = catchAsync(async (req: Request, res: Response) => {
   sendSuccess(res, 200, null, "Đã gửi email test thành công!");
 });
 
+// ─── Blog Posts CRUD ──────────────────────────────────────────────────
+export const getPosts = catchAsync(async (req: Request, res: Response) => {
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(50, Number(req.query.limit) || 20);
+  const search = (req.query.search as string) || "";
+
+  const where: any = {};
+  if (search) {
+    where.OR = [
+      { title: { contains: search, mode: "insensitive" } },
+      { category: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  const [posts, total] = await Promise.all([
+    prisma.post.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+      include: { author: { select: { name: true } } },
+    }),
+    prisma.post.count({ where }),
+  ]);
+
+  sendSuccess(res, 200, { posts, total, page, totalPages: Math.ceil(total / limit) });
+});
+
+export const getPostById = catchAsync(async (req: Request, res: Response) => {
+  const post = await prisma.post.findUnique({
+    where: { id: req.params.id },
+    include: { author: { select: { id: true, name: true } } },
+  });
+  if (!post) {
+    res.status(404).json({ status: "fail", message: "Bài viết không tồn tại" });
+    return;
+  }
+  sendSuccess(res, 200, post);
+});
+
+export const createPost = catchAsync(async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const { title, slug, excerpt, content, thumbnail, category, tags, readTime, isPublished } = req.body;
+
+  if (!title || !slug || !excerpt || !content) {
+    res.status(400).json({ status: "fail", message: "Thiếu thông tin bắt buộc (title, slug, excerpt, content)" });
+    return;
+  }
+
+  const existing = await prisma.post.findUnique({ where: { slug } });
+  if (existing) {
+    res.status(400).json({ status: "fail", message: "Slug đã tồn tại, vui lòng chọn slug khác" });
+    return;
+  }
+
+  const post = await prisma.post.create({
+    data: {
+      title,
+      slug,
+      excerpt,
+      content,
+      thumbnail: thumbnail || null,
+      category: category || null,
+      tags: tags || [],
+      readTime: Number(readTime) || 5,
+      isPublished: Boolean(isPublished),
+      publishedAt: isPublished ? new Date() : null,
+      authorId: user.id,
+    },
+  });
+
+  sendSuccess(res, 201, post, "Tạo bài viết thành công!");
+});
+
+export const updatePost = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { title, slug, excerpt, content, thumbnail, category, tags, readTime, isPublished } = req.body;
+
+  const existing = await prisma.post.findUnique({ where: { id } });
+  if (!existing) {
+    res.status(404).json({ status: "fail", message: "Bài viết không tồn tại" });
+    return;
+  }
+
+  if (slug && slug !== existing.slug) {
+    const slugConflict = await prisma.post.findUnique({ where: { slug } });
+    if (slugConflict) {
+      res.status(400).json({ status: "fail", message: "Slug đã tồn tại" });
+      return;
+    }
+  }
+
+  const wasPublished = existing.isPublished;
+  const nowPublished = isPublished !== undefined ? Boolean(isPublished) : existing.isPublished;
+
+  const post = await prisma.post.update({
+    where: { id },
+    data: {
+      ...(title !== undefined && { title }),
+      ...(slug !== undefined && { slug }),
+      ...(excerpt !== undefined && { excerpt }),
+      ...(content !== undefined && { content }),
+      thumbnail: thumbnail !== undefined ? thumbnail || null : existing.thumbnail,
+      ...(category !== undefined && { category: category || null }),
+      ...(tags !== undefined && { tags }),
+      ...(readTime !== undefined && { readTime: Number(readTime) }),
+      isPublished: nowPublished,
+      publishedAt: nowPublished && !wasPublished ? new Date() : existing.publishedAt,
+    },
+  });
+
+  sendSuccess(res, 200, post, "Cập nhật bài viết thành công!");
+});
+
+export const deletePost = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const existing = await prisma.post.findUnique({ where: { id } });
+  if (!existing) {
+    res.status(404).json({ status: "fail", message: "Bài viết không tồn tại" });
+    return;
+  }
+  await prisma.post.delete({ where: { id } });
+  sendSuccess(res, 200, null, "Đã xoá bài viết");
+});
+
+export const togglePublishPost = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const existing = await prisma.post.findUnique({ where: { id } });
+  if (!existing) {
+    res.status(404).json({ status: "fail", message: "Bài viết không tồn tại" });
+    return;
+  }
+  const nowPublished = !existing.isPublished;
+  const post = await prisma.post.update({
+    where: { id },
+    data: {
+      isPublished: nowPublished,
+      publishedAt: nowPublished && !existing.publishedAt ? new Date() : existing.publishedAt,
+    },
+  });
+  sendSuccess(res, 200, post, nowPublished ? "Đã xuất bản bài viết" : "Đã ẩn bài viết");
+});
+
 // ─── Admin: Resend Verification Email ────────────────────────────────
 export const resendVerificationByAdmin = catchAsync(
   async (req: Request, res: Response) => {

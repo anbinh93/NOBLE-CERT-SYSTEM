@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { CourseService } from '../services/course.service';
+import { PostService } from '../services/post.service';
 import { catchAsync } from '../utils/catchAsync';
 import { sendSuccess } from '../utils/response';
 import { prisma } from '../config/database.config';
+import { generateCertificatePDF } from '../services/certificate.service';
 
 /**
  * GET /api/public/courses
@@ -22,6 +24,30 @@ export const getPublicCourseBySlug = catchAsync(async (req: Request, res: Respon
   const { slug } = req.params;
   const course = await CourseService.getCourseBySlug(slug);
   res.status(200).json(course);
+});
+
+/**
+ * GET /api/public/posts
+ * Trả danh sách bài viết đã xuất bản.
+ */
+export const getPublicPosts = catchAsync(async (req: Request, res: Response) => {
+  const limit = Math.min(Number(req.query.limit) || 10, 50);
+  const posts = await PostService.getPublishedPosts(limit);
+  sendSuccess(res, 200, posts, 'OK');
+});
+
+/**
+ * GET /api/public/posts/:slug
+ * Lấy chi tiết một bài viết theo slug.
+ */
+export const getPublicPostBySlug = catchAsync(async (req: Request, res: Response) => {
+  const { slug } = req.params;
+  const post = await PostService.getPostBySlug(slug);
+  if (!post) {
+    res.status(404).json({ status: 'fail', message: 'Bài viết không tồn tại' });
+    return;
+  }
+  sendSuccess(res, 200, post, 'OK');
 });
 
 /**
@@ -196,3 +222,40 @@ function escapeXml(str: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
 }
+
+/**
+ * GET /api/public/verify/:serial/download
+ * Tạo và trả về file PDF chứng chỉ để download. Public — không cần xác thực.
+ */
+export const certificateDownload = catchAsync(async (req: Request, res: Response) => {
+  const { serial } = req.params;
+  const enrollment = await findEnrollmentBySerial(serial);
+
+  if (!enrollment) {
+    res.status(404).json({ status: 'fail', message: 'Chứng chỉ không tồn tại' });
+    return;
+  }
+
+  const course = enrollment.course as any;
+  const serialNumber = `NC-${enrollment.id.slice(-8).toUpperCase()}`;
+  const studentName = enrollment.user.name ?? 'Học viên';
+  const courseName = course.title ?? 'Khoá học';
+  const instructorName = course.instructor?.name ?? 'Noble Cert';
+  const issuedDate = new Date(enrollment.updatedAt).toLocaleDateString('vi-VN', {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
+
+  const pdfBuffer = await generateCertificatePDF({
+    studentName,
+    courseName,
+    instructorName,
+    issuedDate,
+    serialNumber,
+  });
+
+  const filename = `certificate-${serialNumber}.pdf`;
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.setHeader('Content-Length', pdfBuffer.length);
+  res.status(200).end(pdfBuffer);
+});

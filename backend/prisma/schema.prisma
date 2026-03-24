@@ -6,6 +6,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
+  url      = env("MONGODB_URI")
 }
 
 enum Role {
@@ -45,9 +46,29 @@ model User {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
-  orders      Order[]
-  courses     Course[] // Nếu là Instructor
-  enrollments Enrollment[]
+  orders              Order[]
+  courses             Course[] // Nếu là Instructor
+  enrollments         Enrollment[]
+  posts               Post[]
+  markedAttendances   Attendance[] @relation("AttendanceMarker")
+}
+
+model Post {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  slug        String    @unique
+  excerpt     String
+  content     String
+  thumbnail   String?
+  category    String?
+  tags        String[]
+  readTime    Int       @default(5)
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  authorId    String    @db.ObjectId
+  author      User      @relation(fields: [authorId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model SystemSetting {
@@ -98,10 +119,11 @@ model Enrollment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user       User          @relation(fields: [userId], references: [id])
-  course     Course        @relation(fields: [courseId], references: [id])
-  progresses Progress[]
-  attempts   ExamAttempt[]
+  user        User          @relation(fields: [userId], references: [id])
+  course      Course        @relation(fields: [courseId], references: [id])
+  progresses  Progress[]
+  attempts    ExamAttempt[]
+  attendances Attendance[]
 }
 
 model Progress {
@@ -114,6 +136,20 @@ model Progress {
   updatedAt           DateTime @updatedAt
 
   enrollment Enrollment @relation(fields: [enrollmentId], references: [id])
+
+  @@unique([enrollmentId, unitId])
+}
+
+model Attendance {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  enrollmentId String   @db.ObjectId
+  unitId       String
+  markedById   String   @db.ObjectId
+  attendedAt   DateTime @default(now())
+  note         String?
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id])
+  markedBy   User       @relation("AttendanceMarker", fields: [markedById], references: [id])
 
   @@unique([enrollmentId, unitId])
 }
