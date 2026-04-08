@@ -84,7 +84,7 @@ const CertificateCanvas = forwardRef<CertificateHandle, CertificateCanvasProps>(
                          <div className="w-24 h-24 mb-4 mx-auto relative flex items-center justify-center">
                              {/* Use standard img for better html2canvas compatibility if needed, or Next Image with unoptimized */}
                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src="/logo.webp" alt="Noble Cert Logo" className="w-full h-full object-contain drop-shadow-xl" crossOrigin="anonymous" />
+                            <img src="/logo.webp" alt="Noble Language Academy Logo" className="w-full h-full object-contain drop-shadow-xl" crossOrigin="anonymous" />
                          </div>
                          <h1 className="text-5xl font-bold tracking-wider text-slate-800 mb-2 uppercase">CHỨNG CHỈ</h1>
                          <p className="text-sm font-bold tracking-[0.4em] text-[#d4af37] uppercase">HOÀN THÀNH KHÓA HỌC</p>

@@ -154,7 +154,7 @@ function CertificatesContent() { // Inner component using searchParams
                                     <Image src="/favicon.ico" alt="Logo" width={24} height={24} className="opacity-80 drop-shadow-sm" />
                                 </div>
                                 <div>
-                                    <p className="text-xs font-bold text-primary tracking-wide uppercase font-serif">{cert.issuerId?.name || "Noble Cert"}</p>
+                                    <p className="text-xs font-bold text-primary tracking-wide uppercase font-serif">{cert.issuerId?.name || "Noble Language Academy"}</p>
                                     <h3 className="font-bold text-foreground text-lg mt-0.5 max-w-[200px] truncate">{cert.courseId?.name || "Chứng chỉ khóa học"}</h3>
                                 </div>
                             </div>

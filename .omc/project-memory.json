@@ -1,0 +1,323 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775406710774,
+  "projectRoot": "/Users/nguyenbinhan/Workspace/noble-cert-system",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      }
+    ],
+    "frameworks": [],
+    "packageManager": "pnpm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "pnpm dev",
+    "scripts": {
+      "dev": "concurrently -n \"frontend,backend,admin\" -c \"cyan,green,magenta\" \"pnpm --filter frontend dev\" \"pnpm --filter noble-cert-backend dev\" \"pnpm --filter admin-frontend dev\""
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": true,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "admin-frontend": {
+      "path": "admin-frontend",
+      "purpose": null,
+      "fileCount": 15,
+      "lastAccessed": 1775406710762,
+      "keyFiles": [
+        "Dockerfile",
+        "README.md",
+        "components.json",
+        "eslint.config.mjs",
+        "next-env.d.ts"
+      ]
+    },
+    "backend": {
+      "path": "backend",
+      "purpose": null,
+      "fileCount": 10,
+      "lastAccessed": 1775406710764,
+      "keyFiles": [
+        "Dockerfile",
+        "jest.config.js",
+        "jest_err.txt",
+        "jest_out.txt",
+        "package.json"
+      ]
+    },
+    "frontend": {
+      "path": "frontend",
+      "purpose": null,
+      "fileCount": 20,
+      "lastAccessed": 1775406710764,
+      "keyFiles": [
+        "Dockerfile",
+        "README.md",
+        "auth.config.ts",
+        "auth.ts",
+        "components.json"
+      ]
+    },
+    "mock": {
+      "path": "mock",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775406710765,
+      "keyFiles": []
+    },
+    "backend/docs": {
+      "path": "backend/docs",
+      "purpose": "Documentation",
+      "fileCount": 2,
+      "lastAccessed": 1775406710771,
+      "keyFiles": [
+        "payos-postman-collection.json",
+        "postman.json"
+      ]
+    },
+    "backend/node_modules": {
+      "path": "backend/node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 0,
+      "lastAccessed": 1775406710772,
+      "keyFiles": []
+    },
+    "frontend/app": {
+      "path": "frontend/app",
+      "purpose": "Application code",
+      "fileCount": 3,
+      "lastAccessed": 1775406710773,
+      "keyFiles": [
+        "favicon.ico",
+        "globals.css",
+        "layout.tsx"
+      ]
+    },
+    "mock/data": {
+      "path": "mock/data",
+      "purpose": "Data files",
+      "fileCount": 0,
+      "lastAccessed": 1775406710773,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "frontend/app/(public)/page.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1775407584906,
+      "type": "file"
+    },
+    {
+      "path": "frontend/lib/i18n.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1775407522244,
+      "type": "file"
+    },
+    {
+      "path": "frontend/app/layout.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1775407506874,
+      "type": "file"
+    },
+    {
+      "path": "frontend/components/layout/header.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1775407509161,
+      "type": "file"
+    },
+    {
+      "path": "frontend/components/layout/footer.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1775407523968,
+      "type": "file"
+    },
+    {
+      "path": "frontend/next.config.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775407120497,
+      "type": "file"
+    },
+    {
+      "path": "frontend/locales/en.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775407187369,
+      "type": "file"
+    },
+    {
+      "path": "frontend/app/globals.css",
+      "accessCount": 2,
+      "lastAccessed": 1775407196885,
+      "type": "file"
+    },
+    {
+      "path": "frontend/locales/vi.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775407197073,
+      "type": "file"
+    },
+    {
+      "path": "frontend/locales/ja.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775407203315,
+      "type": "file"
+    },
+    {
+      "path": "frontend/locales/zh.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775407203631,
+      "type": "file"
+    },
+    {
+      "path": "frontend/package.json",
+      "accessCount": 2,
+      "lastAccessed": 1775407254336,
+      "type": "file"
+    },
+    {
+      "path": "frontend/postcss.config.mjs",
+      "accessCount": 2,
+      "lastAccessed": 1775407265501,
+      "type": "file"
+    },
+    {
+      "path": "frontend/components/landing/TestimonialVideo.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1775407482404,
+      "type": "file"
+    },
+    {
+      "path": "frontend/components/ui/language-switcher.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1775407498836,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 1,
+      "lastAccessed": 1775407113810,
+      "type": "file"
+    },
+    {
+      "path": "admin-frontend/next.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775407116549,
+      "type": "file"
+    },
+    {
+      "path": "admin-frontend/src/app/layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775407117389,
+      "type": "file"
+    },
+    {
+      "path": "admin-frontend/src/app/globals.css",
+      "accessCount": 1,
+      "lastAccessed": 1775407124771,
+      "type": "file"
+    },
+    {
+      "path": "frontend/components/landing/BlogCarousel.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775407206579,
+      "type": "file"
+    },
+    {
+      "path": "frontend/components/landing/FeaturedCoursesCarousel.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775407206668,
+      "type": "file"
+    },
+    {
+      "path": "frontend/components.json",
+      "accessCount": 1,
+      "lastAccessed": 1775407209262,
+      "type": "file"
+    },
+    {
+      "path": "frontend/components/Providers.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775407254144,
+      "type": "file"
+    },
+    {
+      "path": "admin-frontend/package.json",
+      "accessCount": 1,
+      "lastAccessed": 1775407254460,
+      "type": "file"
+    },
+    {
+      "path": "frontend/app/(public)/layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775407258000,
+      "type": "file"
+    },
+    {
+      "path": "admin-frontend/src/middleware.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775407261055,
+      "type": "file"
+    },
+    {
+      "path": "frontend/tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1775407265781,
+      "type": "file"
+    },
+    {
+      "path": "admin-frontend/postcss.config.mjs",
+      "accessCount": 1,
+      "lastAccessed": 1775407266012,
+      "type": "file"
+    },
+    {
+      "path": "admin-frontend/tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1775407266296,
+      "type": "file"
+    },
+    {
+      "path": "frontend",
+      "accessCount": 1,
+      "lastAccessed": 1775407489482,
+      "type": "directory"
+    },
+    {
+      "path": "frontend/components/landing/PartnersSection.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775407575403,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/noble-cert-patterns.md",
+      "accessCount": 1,
+      "lastAccessed": 1775456082562,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

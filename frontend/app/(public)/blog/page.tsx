@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Blog — Kiến thức & Tin tức",
-  description: "Cập nhật xu hướng học tập, chia sẻ kinh nghiệm và tin tức mới nhất từ Noble Cert.",
+  description: "Cập nhật xu hướng học tập, chia sẻ kinh nghiệm và tin tức mới nhất từ Noble Language Academy.",
 };
 
 const CATEGORIES = ["Tất cả", "Hướng dẫn", "Mẹo học tập", "Công nghệ", "Sự nghiệp", "Tin tức", "Kỹ năng"];
@@ -97,10 +97,10 @@ export default async function BlogPage({
             KIẾN THỨC & TIN TỨC
           </div>
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-4">
-            Blog Noble Cert
+            Blog Noble Language Academy
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl">
-            Chia sẻ kiến thức, kinh nghiệm học tập và xu hướng giáo dục từ đội ngũ chuyên gia Noble Cert.
+            Chia sẻ kiến thức, kinh nghiệm học tập và xu hướng giáo dục từ đội ngũ chuyên gia Noble Language Academy.
           </p>
         </div>
       </div>

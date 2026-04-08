@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 
-export type Locale = "vi" | "en" | "zh" | "ja";
+export type Locale = "vi" | "en";
 
 type TranslationValue = string | Record<string, unknown>;
 type Translations = Record<string, TranslationValue>;
@@ -22,9 +22,7 @@ const translationCache: Partial<Record<Locale, Translations>> = {};
 async function loadTranslations(locale: Locale): Promise<Translations> {
   if (translationCache[locale]) return translationCache[locale]!;
   let mod;
-  if (locale === "zh") mod = await import("@/locales/zh");
-  else if (locale === "ja") mod = await import("@/locales/ja");
-  else if (locale === "en") mod = await import("@/locales/en");
+  if (locale === "en") mod = await import("@/locales/en");
   else mod = await import("@/locales/vi");
   translationCache[locale] = mod.default;
   return mod.default;
@@ -43,7 +41,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const saved = (typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null) as Locale | null;
-    const validLocales: Locale[] = ["vi", "en", "zh", "ja"];
+    const validLocales: Locale[] = ["vi", "en"];
     const initial: Locale = saved && validLocales.includes(saved) ? saved : "vi";
     setLocaleState(initial);
     loadTranslations(initial).then(setTranslations);

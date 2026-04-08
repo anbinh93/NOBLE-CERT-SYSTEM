@@ -40,7 +40,7 @@ export default function VerificationPage({ params }: { params: Promise<{ id: str
                         courseName: certData.courseId?.name || "Khoá học",
                         completedAt: certData.issuedDate || certData.createdAt,
                         certificateId: certData.serialNumber || certData._id,
-                        instructor: certData.issuerId?.name || "Noble Cert",
+                        instructor: certData.issuerId?.name || "Noble Language Academy",
                         message: "Verified",
                     });
                 } else {

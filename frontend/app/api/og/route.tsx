@@ -5,7 +5,7 @@ export const runtime = 'edge';
  
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const title = searchParams.get('title') || 'Noble Cert';
+  const title = searchParams.get('title') || 'Noble Language Academy';
   const name = searchParams.get('name') || 'Student';
 
   return new ImageResponse(

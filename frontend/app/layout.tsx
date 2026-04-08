@@ -1,18 +1,18 @@
-import { Be_Vietnam_Pro, Merriweather } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/header";
 import Providers from "@/components/Providers";
 import Footer from "@/components/layout/footer";
 
-const beVietnamPro = Be_Vietnam_Pro({ 
+const inter = Inter({ 
   subsets: ["vietnamese", "latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-sans",
 });
 
-const merriweather = Merriweather({
-  subsets: ["vietnamese", "latin"],
-  weight: ["300", "400", "700", "900"],
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-serif",
 });
 
@@ -21,36 +21,36 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: {
-    default: "Noble Cert - Hệ thống chứng chỉ số chuyên nghiệp",
-    template: "%s | Noble Cert"
+    default: "Noble Language Academy - Học viện ngôn ngữ chuyên nghiệp",
+    template: "%s | Noble Language Academy"
   },
-  description: "Nền tảng xác thực và cấp phát chứng chỉ số hàng đầu. Bảo mật, minh bạch và dễ dàng chia sẻ thành tựu của bạn.",
-  keywords: ["Noble Cert", "Certificate", "Blockchain", "Xác thực văn bằng", "Chứng chỉ số", "LMS", "E-learning"],
+  description: "Nền tảng đào tạo ngôn ngữ chuẩn quốc tế hàng đầu. Luyện thi TOEIC, IELTS, JLPT với chứng chỉ xác thực Blockchain.",
+  keywords: ["Noble Language Academy", "TOEIC", "IELTS", "JLPT", "Học ngôn ngữ", "Chứng chỉ", "LMS", "E-learning"],
   authors: [{ name: "Noble Network" }],
-  creator: "Noble Cert Team",
+  creator: "Noble Language Academy",
   publisher: "Noble Network",
   openGraph: {
     type: "website",
     locale: "vi_VN",
     url: "/",
-    title: "Noble Cert - Hệ thống chứng chỉ số chuyên nghiệp",
-    description: "Nền tảng xác thực và cấp phát chứng chỉ số hàng đầu. Bảo mật, minh bạch và dễ dàng chia sẻ thành tựu của bạn.",
-    siteName: "Noble Cert",
+    title: "Noble Language Academy - Học viện ngôn ngữ chuyên nghiệp",
+    description: "Nền tảng đào tạo ngôn ngữ chuẩn quốc tế hàng đầu. Luyện thi TOEIC, IELTS, JLPT với chứng chỉ xác thực Blockchain.",
+    siteName: "Noble Language Academy",
     images: [
       {
-        url: "/og-image.jpg", // Make sure to suggest user to add this
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Noble Cert Platform",
+        alt: "Noble Language Academy",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Noble Cert - Hệ thống chứng chỉ số chuyên nghiệp",
-    description: "Nền tảng xác thực và cấp phát chứng chỉ số hàng đầu.",
+    title: "Noble Language Academy - Học viện ngôn ngữ chuyên nghiệp",
+    description: "Nền tảng đào tạo ngôn ngữ chuẩn quốc tế hàng đầu.",
     images: ["/og-image.jpg"],
-    creator: "@noblecert",
+    creator: "@nobleacademy",
   },
   icons: {
     icon: "/favicon.ico",
@@ -76,7 +76,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${beVietnamPro.variable} ${merriweather.variable} font-sans min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary`} suppressHydrationWarning>
+      <body className={`${inter.variable} ${playfairDisplay.variable} font-sans min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary`}>
         <Providers>
             <Header />
             {children}

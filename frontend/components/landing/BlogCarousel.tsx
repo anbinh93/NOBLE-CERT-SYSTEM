@@ -81,7 +81,7 @@ export default function BlogCarousel({ posts }: { posts: PostPublic[] }) {
           size="icon"
           disabled={!canScrollLeft}
           onClick={() => scroll("left")}
-          className={`h-12 w-12 rounded-full border border-primary/20 bg-background/80 backdrop-blur-sm shadow-lg text-primary hover:bg-primary hover:text-primary-foreground transition-all ${!canScrollLeft ? "hidden" : ""}`}
+          className={`h-12 w-12 rounded-full border border-border bg-card/80 backdrop-blur-sm shadow-lg text-primary hover:bg-primary hover:text-primary-foreground transition-all ${!canScrollLeft ? "hidden" : ""}`}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
@@ -94,7 +94,7 @@ export default function BlogCarousel({ posts }: { posts: PostPublic[] }) {
           size="icon"
           disabled={!canScrollRight}
           onClick={() => scroll("right")}
-          className={`h-12 w-12 rounded-full border border-primary/20 bg-background/80 backdrop-blur-sm shadow-lg text-primary hover:bg-primary hover:text-primary-foreground transition-all ${!canScrollRight ? "hidden" : ""}`}
+          className={`h-12 w-12 rounded-full border border-border bg-card/80 backdrop-blur-sm shadow-lg text-primary hover:bg-primary hover:text-primary-foreground transition-all ${!canScrollRight ? "hidden" : ""}`}
         >
           <ArrowRight className="w-5 h-5" />
         </Button>
@@ -113,7 +113,7 @@ export default function BlogCarousel({ posts }: { posts: PostPublic[] }) {
             className="min-w-[85%] sm:min-w-[46%] lg:min-w-[23%] snap-center"
           >
             <Link href={`/blog/${post.slug}`}>
-              <div className="group h-full flex flex-col bg-card rounded-2xl overflow-hidden border border-primary/10 shadow-sm hover:shadow-[0_8px_30px_-5px_rgba(212,175,55,0.2)] hover:border-primary/40 hover:-translate-y-1 transition-all duration-400">
+              <div className="group h-full flex flex-col bg-card rounded-2xl overflow-hidden border border-border shadow-sm hover:shadow-[0_8px_30px_-5px_rgba(47,72,109,0.2)] hover:border-primary/40 hover:-translate-y-1 transition-all duration-400">
                 {/* Thumbnail */}
                 <div className="aspect-[16/9] bg-muted relative overflow-hidden">
                   {post.thumbnail ? (
@@ -125,7 +125,7 @@ export default function BlogCarousel({ posts }: { posts: PostPublic[] }) {
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-amber-100/20 dark:to-amber-900/10" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/20" />
                   )}
                   {post.category && (
                     <div className="absolute top-3 left-3 bg-primary text-primary-foreground text-[11px] font-bold px-2.5 py-1 rounded-full shadow">

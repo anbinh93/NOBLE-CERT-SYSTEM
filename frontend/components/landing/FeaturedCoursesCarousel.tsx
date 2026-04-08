@@ -58,7 +58,7 @@ export default function FeaturedCoursesCarousel({ courses }: { courses: Course[]
                 size="icon"
                 disabled={!canScrollLeft}
                 onClick={() => scroll("left")}
-                className={`h-12 w-12 rounded-full border border-primary/20 bg-background/80 backdrop-blur-sm shadow-lg text-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-0 transition-all ${!canScrollLeft ? 'hidden' : ''}`}
+                className={`h-12 w-12 rounded-full border border-border bg-card/80 backdrop-blur-sm shadow-lg text-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-0 transition-all ${!canScrollLeft ? 'hidden' : ''}`}
              >
                  <ArrowLeft className="w-5 h-5" />
              </Button>
@@ -70,7 +70,7 @@ export default function FeaturedCoursesCarousel({ courses }: { courses: Course[]
                 size="icon"
                 disabled={!canScrollRight}
                 onClick={() => scroll("right")}
-                className={`h-12 w-12 rounded-full border border-primary/20 bg-background/80 backdrop-blur-sm shadow-lg text-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-0 transition-all ${!canScrollRight ? 'hidden' : ''}`}
+                className={`h-12 w-12 rounded-full border border-border bg-card/80 backdrop-blur-sm shadow-lg text-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-0 transition-all ${!canScrollRight ? 'hidden' : ''}`}
              >
                  <ArrowRight className="w-5 h-5" />
              </Button>
@@ -86,7 +86,7 @@ export default function FeaturedCoursesCarousel({ courses }: { courses: Course[]
             {courses.map((course) => (
                 <div key={course._id} className="min-w-[85%] sm:min-w-[45%] lg:min-w-[30%] snap-center">
                      <Link href={`/courses/${course.slug}`}>
-                        <div className="group bg-card rounded-3xl overflow-hidden border border-primary/10 shadow-sm hover:shadow-[0_10px_40px_-10px_rgba(212,175,55,0.2)] hover:border-primary/50 hover:-translate-y-2 transition-all duration-500 h-full flex flex-col">
+                        <div className="group bg-card rounded-3xl overflow-hidden border border-primary/10 shadow-sm hover:shadow-[0_10px_40px_-10px_rgba(47,72,109,0.2)] hover:border-primary/50 hover:-translate-y-2 transition-all duration-500 h-full flex flex-col">
                             <div className="aspect-[4/3] bg-muted relative overflow-hidden">
                                 {course.thumbnail ? (
                                     <Image 
@@ -119,7 +119,7 @@ export default function FeaturedCoursesCarousel({ courses }: { courses: Course[]
                                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase border border-primary/20">
                                             {course.author ? course.author[0] : "N"}
                                         </div>
-                                        <span className="text-sm font-medium text-foreground truncate max-w-[100px]">{course.author || "Noble Cert"}</span>
+                                        <span className="text-sm font-medium text-foreground truncate max-w-[100px]">{course.author || "Noble Language Academy"}</span>
                                     </div>
                                     <div className="text-lg font-bold text-primary">
                                             {/* Assuming price is string "$49" or number */}

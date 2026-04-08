@@ -28,7 +28,7 @@ const FALLBACK_POSTS: PostPublic[] = [
     tags: ['IELTS', 'Tiếng Anh'],
     readTime: 8,
     publishedAt: '2025-03-01T00:00:00.000Z',
-    author: { name: 'Giảng viên Noble Cert' },
+    author: { name: 'Giảng viên Noble Language Academy' },
   },
   {
     _id: 'mock-2',
@@ -40,7 +40,7 @@ const FALLBACK_POSTS: PostPublic[] = [
     tags: ['Tiếng Anh', 'Tự học'],
     readTime: 6,
     publishedAt: '2025-03-05T00:00:00.000Z',
-    author: { name: 'Giảng viên Noble Cert' },
+    author: { name: 'Giảng viên Noble Language Academy' },
   },
   {
     _id: 'mock-3',
@@ -52,7 +52,7 @@ const FALLBACK_POSTS: PostPublic[] = [
     tags: ['Blockchain', 'EdTech'],
     readTime: 5,
     publishedAt: '2025-03-10T00:00:00.000Z',
-    author: { name: 'Noble Cert Team' },
+    author: { name: 'Noble Language Academy Team' },
   },
   {
     _id: 'mock-4',
@@ -64,19 +64,19 @@ const FALLBACK_POSTS: PostPublic[] = [
     tags: ['Data Science', 'Machine Learning'],
     readTime: 10,
     publishedAt: '2025-03-12T00:00:00.000Z',
-    author: { name: 'Giảng viên Noble Cert' },
+    author: { name: 'Giảng viên Noble Language Academy' },
   },
   {
     _id: 'mock-5',
-    title: 'Noble Cert ra mắt chương trình học bổng 2025',
+    title: 'Noble Language Academy ra mắt chương trình học bổng 2025',
     slug: 'noble-cert-ra-mat-chuong-trinh-hoc-bong-2025',
-    excerpt: 'Noble Cert chính thức công bố chương trình học bổng toàn phần dành cho 50 học viên xuất sắc. Đăng ký ngay hôm nay.',
+    excerpt: 'Noble Language Academy chính thức công bố chương trình học bổng toàn phần dành cho 50 học viên xuất sắc. Đăng ký ngay hôm nay.',
     thumbnail: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800&q=80',
     category: 'Tin tức',
-    tags: ['Học bổng', 'Noble Cert'],
+    tags: ['Học bổng', 'Noble Language Academy'],
     readTime: 4,
     publishedAt: '2025-03-15T00:00:00.000Z',
-    author: { name: 'Noble Cert Team' },
+    author: { name: 'Noble Language Academy Team' },
   },
   {
     _id: 'mock-6',
@@ -88,7 +88,7 @@ const FALLBACK_POSTS: PostPublic[] = [
     tags: ['Kỹ năng mềm', 'Sự nghiệp'],
     readTime: 7,
     publishedAt: '2025-03-18T00:00:00.000Z',
-    author: { name: 'Giảng viên Noble Cert' },
+    author: { name: 'Giảng viên Noble Language Academy' },
   },
 ];
 
